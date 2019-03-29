@@ -55,16 +55,20 @@ def load_longforms():
 def add_groundings():
     name = request.form['name']
     grounding = request.form['grounding']
+    names = session['names']
+    groundings = session['groundings']
     if name and grounding:
         selected = request.form.getlist('select')
-        names = session['names']
-        groundings = session['groundings']
         for value in selected:
             index = int(value)-1
             names[index] = name
             groundings[index] = grounding
-        session['names'] = names
-        session['groundings'] = groundings
+    delete = request.form.getlist('delete')
+    for value in delete:
+        index = int(value)-1
+        names[index] = groundings[index] = ''
+    session['names'] = names
+    session['groundings'] = groundings
     data = list(zip(session['longforms'], session['scores'],
                     session['names'], session['groundings']))
     return render_template('input.jinja2', data=data)
