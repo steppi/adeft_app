@@ -1,0 +1,14 @@
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+td.score {
+    padding-left: 15px;
+    text-align: right;
+}
+
+td.pad {
+    text-align: center;
+    padding-left: 40px;
+    padding-right: 40px;
+}

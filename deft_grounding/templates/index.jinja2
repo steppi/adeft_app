@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Deft</title>
+  </head>
+  <body>
+    <h1>Deft Grounding Assistant</h1>
+    <form method="POST" action = {{ url_for('ground.load_longforms') }} >
+      <p>
+	Shortform: <input name="shortform" type="text">
+	Cutoff: <input name="cutoff" type="text">
+	<input type="submit" value="submit">
+      </p>
+    </form>
+   </body>
+</html>
+

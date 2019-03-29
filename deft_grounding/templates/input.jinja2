@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Deft</title>
+    <link rel="stylesheet" type="text/css" href="static/style.css">
+  </head>
+  <body>
+    <h1><a href="{{ url_for('ground.main') }}">Deft Grounding Assistant</a></h1>
+    <form action="{{ url_for('ground.add_groundings') }}" method="POST">
+      <p>
+	Name: <input name="name", type="text">
+	Grounding: <input name="grounding", type="text">
+	<input type="submit" value="submit">
+      </p>
+      <table>
+	{% for longform, score, name, grounding in data %}
+	  <tr>
+	    <td>
+	      <input name="select" value="{{ loop.index }}" type="checkbox">
+	    </td>
+	    <td>
+	      {{ longform }}
+	    </td>
+	    <td class="score">
+	      {{ score }}
+	    </td>
+	    <td class="pad">
+	      {{ name }}
+	    </td>
+	    <td class="pad">
+	      {{ grounding }}
+	    </td>
+	  </tr>
+	{% endfor %}
+      </table>
+    </form>
+    <form action="{{ url_for('ground.generate_grounding_map') }}" method="POST">
+      	<input type="submit" value="generate">
+    </form>
+  </body>
+</html>
