@@ -7,6 +7,9 @@ from flask import (
     redirect
     )
 
+from .trips import trips_ground
+
+
 bp = Blueprint('ground', __name__)
 
 
@@ -23,8 +26,8 @@ def load_longforms():
         cutoff = float(request.form['cutoff'])
     except ValueError or TypeError:
         cutoff = 1.0
-    longforms_path = os.path.join(current_app.instance_path, 'data',
-                                  'longforms', f'{shortform}_longforms.pkl')
+    longforms_path = os.path.join(current_app.config['DATA'], 'longforms',
+                                  f'{shortform}_longforms.pkl')
     try:
         with open(longforms_path, 'rb') as f:
             longforms = pickle.load(f)
@@ -36,8 +39,13 @@ def load_longforms():
                               if score > cutoff])
     session['longforms'] = longforms
     session['scores'] = [round(score, 1) for score in scores]
-    session['names'] = ['']*len(longforms)
-    session['groundings'] = session['names'].copy()
+    guessed = [trips_ground(longform) for longform in longforms]
+    names, groundings = zip(*guessed)
+    names = [name if name is not None else '' for name in names]
+    groundings = [grounding if grounding is not None
+                  else '' for grounding in groundings]
+    session['names'] = names
+    session['groundings'] = groundings
     data = list(zip(session['longforms'], session['scores'],
                     session['names'], session['groundings']))
     return render_template('input.jinja2', data=data)
@@ -73,7 +81,7 @@ def generate_grounding_map():
     names_map = {grounding: name for grounding, name in zip(groundings,
                                                             names)
                  if grounding and name}
-    groundings_path = os.path.join(current_app.instance_path, 'data',
+    groundings_path = os.path.join(current_app.config['DATA'],
                                    'groundings', shortform)
     try:
         os.mkdir(groundings_path)
