@@ -12,3 +12,11 @@ td.pad {
     padding-left: 40px;
     padding-right: 40px;
 }
+
+div.click-ungrounded {
+    cursor: pointer
+}
+
+div.click-grounded {
+    cursor: pointer
+}
