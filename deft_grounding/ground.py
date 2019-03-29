@@ -26,28 +26,16 @@ def load_longforms():
         cutoff = float(request.form['cutoff'])
     except ValueError or TypeError:
         cutoff = 1.0
-    longforms_path = os.path.join(current_app.config['DATA'], 'longforms',
-                                  f'{shortform}_longforms.pkl')
     try:
-        with open(longforms_path, 'rb') as f:
-            longforms = pickle.load(f)
-    except EnvironmentError:
-        print(longforms_path)
-        return render_template('index.jinja2')
-    longforms, scores = zip(*[(longform, score)
-                              for longform, score in longforms
-                              if score > cutoff])
-    session['longforms'] = longforms
-    session['scores'] = [round(score, 1) for score in scores]
-    guessed = [trips_ground(longform) for longform in longforms]
-    names, groundings = zip(*guessed)
-    names = [name if name is not None else '' for name in names]
-    groundings = [grounding if grounding is not None
-                  else '' for grounding in groundings]
-    session['names'] = names
-    session['groundings'] = groundings
-    data = list(zip(session['longforms'], session['scores'],
-                    session['names'], session['groundings']))
+        data = _init_from_file(shortform)
+    except ValueError:
+        try:
+            data = _init_with_trips(shortform, cutoff)
+        except ValueError:
+            return render_template('index.jinja2')
+    (session['longforms'], session['scores'], session['names'],
+     session['groundings']) = data
+    data = list(zip(*data))
     return render_template('input.jinja2', data=data)
 
 
@@ -98,3 +86,50 @@ def generate_grounding_map():
                            f'{shortform}_names.json'), 'w') as f:
         json.dump(names_map, f)
     return redirect(url_for('ground.main'))
+
+
+def _init_with_trips(shortform, cutoff):
+    longforms, scores = _load(shortform, cutoff)
+    trips_groundings = [trips_ground(longform) for longform in longforms]
+    names, groundings = zip(*trips_groundings)
+    names = [name if name is not None else '' for name in names]
+    groundings = [grounding if grounding is not None
+                  else '' for grounding in groundings]
+    return longforms, scores, names, groundings
+
+
+def _init_from_file(shortform):
+    longforms, scores = _load(shortform, 0)
+    groundings_path = os.path.join(current_app.config['DATA'], 'groundings',
+                                   shortform)
+    try:
+        with open(os.path.join(groundings_path,
+                               f'{shortform}_grounding_map.json'), 'r') as f:
+            grounding_map = json.load(f)
+        with open(os.path.join(groundings_path,
+                               f'{shortform}_names.json'), 'r') as f:
+            names = json.load(f)
+    except EnvironmentError:
+        raise ValueError
+    groundings = [grounding_map.get(longform) for longform in longforms]
+    groundings = ['' if grounding == 'ungrounded' else grounding
+                  for grounding in groundings
+                  if grounding is not None]
+    names = [names.get(grounding) for grounding in groundings]
+    names = [name if name is not None else '' for name in names]
+    return longforms, scores, names, groundings
+
+
+def _load(shortform, cutoff):
+    longforms_path = os.path.join(current_app.config['DATA'], 'longforms',
+                                  f'{shortform}_longforms.pkl')
+    try:
+        with open(longforms_path, 'rb') as f:
+            scored_longforms = pickle.load(f)
+    except EnvironmentError:
+        raise ValueError(f'data not currently available for shortform'
+                         '{shortform}')
+    longforms, scores = zip(*[(longform, score)
+                              for longform, score in scored_longforms
+                              if score > cutoff])
+    return longforms, scores
