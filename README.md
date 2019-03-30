@@ -1,2 +1,2 @@
-# deft_grounding
-simple flask app for grounding lists of terms
+# deft_app
+Simple flask app to  ground longforms for training deft models
