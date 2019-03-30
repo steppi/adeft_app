@@ -3,11 +3,12 @@ import json
 import pickle
 
 from flask import (
-    Blueprint, request, render_template, session, current_app, url_for,
-    redirect
+    Blueprint, request, render_template, session, url_for, redirect
     )
 
+
 from .trips import trips_ground
+from .locations import DATA_PATH
 
 
 bp = Blueprint('ground', __name__)
@@ -73,8 +74,7 @@ def generate_grounding_map():
     names_map = {grounding: name for grounding, name in zip(groundings,
                                                             names)
                  if grounding and name}
-    groundings_path = os.path.join(current_app.config['DATA'],
-                                   'groundings', shortform)
+    groundings_path = os.path.join(DATA_PATH, 'models', shortform)
     try:
         os.mkdir(groundings_path)
     except FileExistsError:
@@ -100,8 +100,7 @@ def _init_with_trips(shortform, cutoff):
 
 def _init_from_file(shortform):
     longforms, scores = _load(shortform, 0)
-    groundings_path = os.path.join(current_app.config['DATA'], 'groundings',
-                                   shortform)
+    groundings_path = os.path.join(DATA_PATH, 'models', shortform)
     try:
         with open(os.path.join(groundings_path,
                                f'{shortform}_grounding_map.json'), 'r') as f:
@@ -121,7 +120,7 @@ def _init_from_file(shortform):
 
 
 def _load(shortform, cutoff):
-    longforms_path = os.path.join(current_app.config['DATA'], 'longforms',
+    longforms_path = os.path.join(DATA_PATH, 'longforms',
                                   f'{shortform}_longforms.pkl')
     try:
         with open(longforms_path, 'rb') as f:
