@@ -44,19 +44,25 @@ def load_longforms():
 def add_groundings():
     name = request.form['name']
     grounding = request.form['grounding']
+    if name and grounding:
+        selected = request.form.getlist('select')
+        for value in selected:
+            index = int(value)-1
+            session['names'][index] = name
+            session['groundings'][index] = grounding
+    data = list(zip(session['longforms'], session['scores'],
+                    session['names'], session['groundings']))
+    return render_template('input.jinja2', data=data)
+
+
+@bp.route('/delete', methods=['POST'])
+def delete_grounding():
     for key in request.form:
         if key.startswith('delete_'):
             id_ = key.partition('_')[-1]
             index = int(id_) - 1
             session['names'][index] = session['groundings'][index] = ''
             break
-    else:
-        if name and grounding:
-            selected = request.form.getlist('select')
-            for value in selected:
-                index = int(value)-1
-                session['names'][index] = name
-                session['groundings'][index] = grounding
     data = list(zip(session['longforms'], session['scores'],
                     session['names'], session['groundings']))
     return render_template('input.jinja2', data=data)

@@ -41,8 +41,11 @@
 	      </div>
 	    </td>
 	    <td>
-	      <input name="delete_{{ loop.index }}" class="delete"
-		     value="X" type="submit">
+	      <form action="{{ url_for('ground.delete_grounding') }}"
+		    method="POST">
+		<input name="delete_{{ loop.index }}" class="delete"
+		       value="X" type="submit">
+	      </form>
 	    </td>
 	  </tr>
 	{% endfor %}
