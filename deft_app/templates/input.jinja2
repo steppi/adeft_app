@@ -41,7 +41,8 @@
 	      </div>
 	    </td>
 	    <td>
-	      <input class="delete" name="delete" value="{{ loop.index }}" type="checkbox">
+	      <input name="delete_{{ loop.index }}" class="delete"
+		     value="X" type="submit">
 	    </td>
 	  </tr>
 	{% endfor %}
