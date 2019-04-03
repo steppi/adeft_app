@@ -16,7 +16,28 @@
 	<input type="submit" value="submit">
       </p>
       <table>
-	{% for longform, score, name, grounding in data %}
+	<th>
+	  <td>
+	    Longform
+	  </td>
+	  <td>
+	    Score
+	  </td>
+	  <td>
+	    Name
+	  </td>
+	  <td>
+	    Grounding
+	  </td>
+	  <td>
+	  </td>
+	  <td class="pad blank">
+	  </td>
+	  <td class="labels-head">
+	    Labels
+	  </td>
+	</th>
+	{% for longform, score, name, grounding, label in data %}
 	  <tr>
 	    <td>
 	      <input name="select" value="{{ loop.index }}" type="checkbox">
@@ -43,9 +64,25 @@
 	    <td>
 	      <form action="{{ url_for('ground.delete_grounding') }}"
 		    method="POST">
-		<input name="delete_{{ loop.index }}" class="delete"
+		<input name="delete.{{ loop.index }}" class="delete"
 		       value="X" type="submit">
 	      </form>
+	    </td>
+	    <td class="pad blank">
+	    </td>
+	    <td class="pad {{ 'filled' if label else 'unfilled' }}
+		       {{ 'positive' if label in pos_labels else 'blank' }}">
+	      {{ label }}
+	    </td>
+	    </td>
+	    <td class="blank">
+	      {% if label %}
+	      <form action="{{ url_for('ground.add_positive') }}"
+		    method="POST">
+		<input name="pos-label.{{ label }}" value="+"
+		       type="submit">
+	      </form>
+	      {% endif %}
 	    </td>
 	  </tr>
 	{% endfor %}
