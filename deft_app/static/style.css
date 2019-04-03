@@ -37,3 +37,7 @@ div.click-grounded {
 .delete {
     cursor: pointer;
 }
+
+input[type=checkbox] {
+    transform: scale(1.5);
+}
