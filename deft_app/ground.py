@@ -45,29 +45,33 @@ def load_longforms():
 def add_groundings():
     name = request.form['name']
     grounding = request.form['grounding']
+    names, groundings = session['names'], session['groundings']
     if name and grounding:
         selected = request.form.getlist('select')
         for value in selected:
             index = int(value)-1
-            session['names'][index] = name
-            session['groundings'][index] = grounding
-    data, pos_labels = _process_data(session['longforms'], session['scores'],
-                                     session['names'], session['groundings'],
-                                     session['pos_labels'])
+            names[index] = name
+            groundings[index] = grounding
+    session['names'], session['groundings'] = names, groundings
+    data = (session['longforms'], session['scores'], session['names'],
+            session['groundings'], session['pos_labels'])
+    data, pos_labels = _process_data(*data)
     return render_template('input.jinja2', data=data, pos_labels=pos_labels)
 
 
 @bp.route('/delete', methods=['POST'])
 def delete_grounding():
+    names, groundings = session['names'], session['groundings']
     for key in request.form:
         if key.startswith('delete.'):
             id_ = key.partition('.')[-1]
             index = int(id_) - 1
-            session['names'][index] = session['groundings'][index] = ''
+            names[index] = groundings[index] = ''
             break
-    data, pos_labels = _process_data(session['longforms'], session['scores'],
-                                     session['names'], session['groundings'],
-                                     session['pos_labels'])
+    session['names'], session['groundings'] = names, groundings
+    data = (session['longforms'], session['scores'], session['names'],
+            session['groundings'], session['pos_labels'])
+    data, pos_labels = _process_data(*data)
     session['pos_labels'] = pos_labels
     return render_template('input.jinja2', data=data, pos_labels=pos_labels)
 
@@ -80,9 +84,9 @@ def add_positive():
             session['pos_labels'] = list(set(session['pos_labels']) ^
                                          set([label]))
             break
-    data, pos_labels = _process_data(session['longforms'], session['scores'],
-                                     session['names'], session['groundings'],
-                                     session['pos_labels'])
+    data = (session['longforms'], session['scores'], session['names'],
+            session['groundings'], session['pos_labels'])
+    data, pos_labels = _process_data(*data)
     return render_template('input.jinja2', data=data, pos_labels=pos_labels)
 
 
