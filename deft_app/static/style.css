@@ -7,10 +7,27 @@ td.score {
     text-align: right;
 }
 
-td.pad {
+.pad {
     text-align: center;
     padding-left: 40px;
     padding-right: 40px;
+}
+
+td.blank {
+    background-color: #FFFFFF;
+}
+
+td.positive {
+    background-color: #89C4F4;
+}
+
+td.filled {
+    border: 3px solid #808080;
+    border-collapse: collapse;
+}
+
+td.labels-head {
+    text-align: center;
 }
 
 div.click-grounded {
