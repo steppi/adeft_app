@@ -1,4 +1,5 @@
 import os
+import re
 import pickle
 import argparse
 
@@ -11,12 +12,18 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Get statements with agent'
                                      'text matching a pattern')
     parser.add_argument('pattern')
-    parser.add_argument('outfile')
+    parser.add_argument('keep', nargs='?')
 
     args = parser.parse_args()
     pattern = args.pattern
-    outfile = args.outfile
+    keep = args.keep
+    if not keep:
+        keep = ''
+    keep = re.compile(keep)
     stmt_dict = get_stmts_with_agent_text_like(pattern,
                                                filter_genes=True)
-    with open(os.path.join(DATA_PATH, 'statements', outfile), 'wb') as f:
-        pickle.dump(stmt_dict, f)
+    for shortform, stmts in stmt_dict.items():
+        if re.match(keep, shortform):
+            with open(os.path.join(DATA_PATH, 'statements',
+                                   f'{shortform}_statements.pkl'), 'wb') as f:
+                pickle.dump(stmts, f)
