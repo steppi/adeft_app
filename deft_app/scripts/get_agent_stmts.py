@@ -1,6 +1,6 @@
 import os
 import re
-import pickle
+import json
 import argparse
 
 
@@ -25,5 +25,5 @@ if __name__ == '__main__':
     for shortform, stmts in stmt_dict.items():
         if re.match(keep, shortform):
             with open(os.path.join(DATA_PATH, 'statements',
-                                   f'{shortform}_statements.pkl'), 'wb') as f:
-                pickle.dump(stmts, f)
+                                   f'{shortform}_statements.json'), 'w') as f:
+                json.dump(stmts, f)

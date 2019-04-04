@@ -1,5 +1,5 @@
 import os
-import pickle
+import json
 import argparse
 
 from deft.discover import DeftMiner
@@ -13,17 +13,16 @@ if __name__ == '__main__':
     parser.add_argument('shortform')
     args = parser.parse_args()
     shortform = args.shortform
-
     texts_path = os.path.join(DATA_PATH, 'texts', shortform,
-                              f'{shortform}_texts.pkl')
-    with open(texts_path, 'rb') as f:
-        texts = pickle.load(f)
+                              f'{shortform}_texts.json')
+    with open(texts_path, 'r') as f:
+        texts = json.load(f)
     texts = texts.values()
     texts = [text for text in texts if text]
     dm = DeftMiner(shortform)
     dm.process_texts(texts)
     longforms = dm.get_longforms()
     out_path = os.path.join(DATA_PATH, 'longforms',
-                            f'{shortform}_longforms.pkl')
+                            f'{shortform}_longforms.json')
     with open(out_path, 'wb') as f:
-        pickle.dump(longforms, f)
+        json.dump(longforms, f)
