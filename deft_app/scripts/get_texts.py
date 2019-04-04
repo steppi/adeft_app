@@ -29,7 +29,7 @@ if __name__ == '__main__':
     dir_path = os.path.join(DATA_PATH, 'texts', agg_name)
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    with open(os.path.join(dir_path, f'{agg_name}_texts.pkl'), 'wb') as f:
+    with open(os.path.join(dir_path, f'{agg_name}_texts.json'), 'wb') as f:
         json.dump(text_dict, f)
-    with open(os.path.join(dir_path, f'{agg_name}_text_map.pkl'), 'wb') as f:
+    with open(os.path.join(dir_path, f'{agg_name}_text_map.json'), 'wb') as f:
         json.dump(ref_dict, f)
