@@ -136,28 +136,32 @@ def get_text_content_from_stmt_ids(stmt_ids):
     abstracts = {text_id: dbu.unpack(text)
                  for text_id, text, text_type in texts
                  if text_type == 'abstract'}
-    result = {}
+    stmt_dict = {}
+    text_ref_dict = {}
     for stmt_id in stmt_ids:
         # first check if we have text content for this statement
         try:
             text_ref = text_refs[stmt_id]
         except KeyError:
             # if not, set fulltext to None
-            result[stmt_id] = None
+            text_ref_dict[stmt_id] = None
             continue
         fulltext = fulltexts.get(text_ref)
         abstract = abstracts.get(text_ref)
         # use the fulltext if we have one
         if fulltext is not None:
             # if so, the text content is xml and will need to be processed
-            result[stmt_id] = fulltext
+            stmt_dict[stmt_id] = text_ref
+            text_ref_dict[text_ref] = fulltext
         # otherwise use the abstract
         elif abstract is not None:
-            result[stmt_id] = abstract
+            stmt_dict[stmt_id] = text_ref
+            text_ref_dict[text_ref] = abstract
         # if we have neither, set result to None
         else:
-            result[stmt_id] = None
-    return result
+            stmt_dict[stmt_id] = text_ref
+            text_ref_dict[text_ref] = None
+    return stmt_dict, text_ref_dict
 
 
 def get_text_content_for_gene(hgnc_name):
