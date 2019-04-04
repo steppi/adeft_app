@@ -4,8 +4,9 @@ import json
 import argparse
 
 
+from indra_db.util.content_scripts import get_stmts_with_agent_text_like
+
 from deft_app.locations import DATA_PATH
-from deft_app.content_tools import get_stmts_with_agent_text_like
 
 
 if __name__ == '__main__':
@@ -21,7 +22,7 @@ if __name__ == '__main__':
         keep = ''
     keep = re.compile(keep)
     stmt_dict = get_stmts_with_agent_text_like(pattern,
-                                               filter_genes=True)
+                                                    filter_genes=True)
     for shortform, stmts in stmt_dict.items():
         if re.match(keep, shortform):
             with open(os.path.join(DATA_PATH, 'statements',

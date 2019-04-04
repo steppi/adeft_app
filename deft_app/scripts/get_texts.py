@@ -2,9 +2,11 @@ import os
 import json
 import argparse
 
+from indra.literature.deft_tools import universal_extract_text
+from indra_db.util.content_scripts import get_text_content_from_stmt_ids
+
 from deft_app.locations import DATA_PATH
-from deft_app.content_tools import universal_extract_text
-from deft_app.content_tools import get_text_content_from_stmt_ids
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Get texts for statements'
@@ -17,8 +19,9 @@ if __name__ == '__main__':
         path = os.path.join(DATA_PATH, 'statements',
                             f'{shortform}_statements.json')
         with open(path, 'r') as f:
+            stmts = json.load(f)
         all_stmts.update(stmts)
-        stmt_dict, text_dict = get_text_content_from_stmt_ids(all_stmts)
+        ref_dict, text_dict = get_text_content_from_stmt_ids(all_stmts)
     text_dict = {text_ref: universal_extract_text(article,
                                                   contains=shortforms)
                  for text_ref, article in text_dict.items()}
