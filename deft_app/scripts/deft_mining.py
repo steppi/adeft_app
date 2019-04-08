@@ -24,5 +24,5 @@ if __name__ == '__main__':
     longforms = dm.get_longforms()
     out_path = os.path.join(DATA_PATH, 'longforms',
                             f'{shortform}_longforms.json')
-    with open(out_path, 'wb') as f:
+    with open(out_path, 'w') as f:
         json.dump(longforms, f)
