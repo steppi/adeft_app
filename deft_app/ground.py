@@ -102,18 +102,18 @@ def generate_grounding_map():
     names_map = {grounding: name for grounding, name in zip(groundings,
                                                             names)
                  if grounding and name}
-    models_path = os.path.join(DATA_PATH, 'models', shortform)
+    groundings_path = os.path.join(DATA_PATH, 'groundings', shortform)
     try:
-        os.mkdir(models_path)
+        os.mkdir(groundings_path)
     except FileExistsError:
         pass
-    with open(os.path.join(models_path,
+    with open(os.path.join(groundings_path,
                            f'{shortform}_grounding_map.json'), 'w') as f:
         json.dump(grounding_map, f)
-    with open(os.path.join(models_path,
+    with open(os.path.join(groundings_path,
                            f'{shortform}_names.json'), 'w') as f:
         json.dump(names_map, f)
-    with open(os.path.join(models_path,
+    with open(os.path.join(groundings_path,
                            f'{shortform}_pos_labels.json'), 'w') as f:
         json.dump(pos_labels, f)
     return redirect(url_for('ground.main'))
@@ -135,15 +135,15 @@ def _init_with_trips(shortform, cutoff):
 
 def _init_from_file(shortform):
     longforms, scores = _load(shortform, 0)
-    models_path = os.path.join(DATA_PATH, 'models', shortform)
+    groundings_path = os.path.join(DATA_PATH, 'groundings', shortform)
     try:
-        with open(os.path.join(models_path,
+        with open(os.path.join(groundings_path,
                                f'{shortform}_grounding_map.json'), 'r') as f:
             grounding_map = json.load(f)
-        with open(os.path.join(models_path,
+        with open(os.path.join(groundings_path,
                                f'{shortform}_names.json'), 'r') as f:
             names = json.load(f)
-        with open(os.path.join(models_path,
+        with open(os.path.join(groundings_path,
                                f'{shortform}_pos_labels.json'), 'r') as f:
             pos_labels = json.load(f)
     except EnvironmentError:
