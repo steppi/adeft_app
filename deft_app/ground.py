@@ -1,6 +1,5 @@
 import os
 import json
-import pickle
 
 
 from flask import (
@@ -159,10 +158,11 @@ def _init_from_file(shortform):
 
 def _load(shortform, cutoff):
     longforms_path = os.path.join(DATA_PATH, 'longforms',
-                                  f'{shortform}_longforms.pkl')
+                                  f'{shortform}_longforms.json')
+    print(longforms_path)
     try:
-        with open(longforms_path, 'rb') as f:
-            scored_longforms = pickle.load(f)
+        with open(longforms_path, 'r') as f:
+            scored_longforms = json.load(f)
     except EnvironmentError:
         raise ValueError(f'data not currently available for shortform'
                          '{shortform}')
