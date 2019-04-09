@@ -25,7 +25,7 @@ if __name__ == '__main__':
     text_dict = {text_ref: universal_extract_text(article,
                                                   contains=shortforms)
                  for text_ref, article in text_dict.items()}
-    agg_name = ':'.join(shortforms)
+    agg_name = ':'.join(sorted(shortforms))
     dir_path = os.path.join(DATA_PATH, 'texts', agg_name)
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
