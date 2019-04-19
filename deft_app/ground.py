@@ -52,6 +52,7 @@ def add_groundings():
             names[index] = name
             groundings[index] = grounding
     session['names'], session['groundings'] = names, groundings
+    session['pos_labels'] = list(set(session['pos_labels']) & set(groundings))
     data = (session['longforms'], session['scores'], session['names'],
             session['groundings'], session['pos_labels'])
     data, pos_labels = _process_data(*data)
@@ -68,6 +69,7 @@ def delete_grounding():
             names[index] = groundings[index] = ''
             break
     session['names'], session['groundings'] = names, groundings
+    session['pos_labels'] = list(set(session['pos_labels']) & set(groundings))
     data = (session['longforms'], session['scores'], session['names'],
             session['groundings'], session['pos_labels'])
     data, pos_labels = _process_data(*data)
@@ -159,7 +161,6 @@ def _init_from_file(shortform):
 def _load(shortform, cutoff):
     longforms_path = os.path.join(DATA_PATH, 'longforms',
                                   f'{shortform}_longforms.json')
-    print(longforms_path)
     try:
         with open(longforms_path, 'r') as f:
             scored_longforms = json.load(f)
