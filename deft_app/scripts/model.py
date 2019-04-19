@@ -67,7 +67,7 @@ def train(shortforms, additional=None, n_jobs=1):
         with open(os.path.join(texts_path, agent_text,
                                f'{agent_text}_texts.json'), 'r') as f:
             additional_texts = json.load(f)
-            corpus.append([(text, grounding)
+            corpus.extend([(text, grounding)
                            for text_ref, text in additional_texts.items()
                            if text_ref not in text_dict])
 
@@ -105,7 +105,6 @@ def train(shortforms, additional=None, n_jobs=1):
     data = {'stats': stats,
             'cv_results': cv_results,
             'preds_on_unlabeled': preds}
-  
     try:
         os.mkdir(os.path.join(models_path, agg_name))
     except FileExistsError:
