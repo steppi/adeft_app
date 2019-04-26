@@ -12,7 +12,7 @@ memory = Memory(trips_cache, verbose=0)
 def trips_ground(text):
     name = grounding = None
     try:
-        tp = trips.process_text(text, service_endpoint='drum-dev')
+        tp = trips.process_text(text, service_endpoint='drum')
         terms = tp.tree.findall('TERM')
         if terms:
             term_id = terms[0].attrib['id']
