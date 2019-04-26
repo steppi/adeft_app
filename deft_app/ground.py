@@ -98,22 +98,31 @@ def generate_grounding_map():
     names = session['names']
     groundings = session['groundings']
     pos_labels = session['pos_labels']
-    grounding_map = {longform: grounding if grounding else 'ungrounded'
-                     for longform, grounding in zip(longforms, groundings)}
+    unique_groundings = set(grounding for grounding in groundings if grounding)
+    labels = {grounding: i+1 for i, grounding in
+              enumerate(unique_groundings)}
+    labels['ungrounded'] = 0
+    labels_map = {longform: labels[grounding] if grounding else 0
+                  for longform, grounding in zip(longforms, groundings)}
     names_map = {grounding: name for grounding, name in zip(groundings,
                                                             names)
                  if grounding and name}
+    names_map['ungrounded'] = None
+    grounding_map = {label: {'grounding': grounding,
+                             'name': names_map[grounding]}
+                     for grounding, label in labels.items()}
     groundings_path = os.path.join(DATA_PATH, 'groundings', shortform)
+    pos_labels = [labels[grounding] for grounding in pos_labels]
     try:
         os.mkdir(groundings_path)
     except FileExistsError:
         pass
     with open(os.path.join(groundings_path,
-                           f'{shortform}_grounding_map.json'), 'w') as f:
+                           f'{shortform}_groundings.json'), 'w') as f:
         json.dump(grounding_map, f)
     with open(os.path.join(groundings_path,
-                           f'{shortform}_names.json'), 'w') as f:
-        json.dump(names_map, f)
+                           f'{shortform}_labels.json'), 'w') as f:
+        json.dump(labels_map, f)
     with open(os.path.join(groundings_path,
                            f'{shortform}_pos_labels.json'), 'w') as f:
         json.dump(pos_labels, f)
