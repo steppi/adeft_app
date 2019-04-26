@@ -70,6 +70,9 @@ def train(shortforms, additional=None, n_jobs=1):
             corpus.extend([(text, grounding)
                            for text_ref, text in additional_texts.items()
                            if text_ref not in text_dict])
+            pos_labels.append(grounding)
+
+    pos_labels = sorted(set(pos_labels))
 
     train, labels = zip(*corpus)
     deft_cl = DeftClassifier(shortforms, pos_labels)
