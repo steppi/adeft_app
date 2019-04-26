@@ -28,3 +28,7 @@ if __name__ == '__main__':
                                 f'{shortform}_longforms.json')
         with open(out_path, 'w') as f:
             json.dump(longforms, f)
+        out_path = os.path.join(DATA_PATH, 'longforms',
+                                f'{shortform}_top.json')
+        with open(out_path, 'w') as f:
+            json.dump(dm.top(100), f)
