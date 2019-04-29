@@ -30,7 +30,8 @@ if __name__ == '__main__':
         client.upload_file(temp.name, 'deft-models', 's3_models.json')
 
     file_names = [f'{model_name}_{end}' for end in
-                  ('model.gz', 'grounding_dict.json', 'names.json')]
+                  ('model.gz', 'grounding_dict.json', 'names.json',
+                   'label_code.json')]
 
     for file_name in file_names:
         client.upload_file(os.path.join(local_models_path,
