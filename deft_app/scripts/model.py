@@ -77,9 +77,9 @@ def train(shortforms, additional=None, n_jobs=1):
     train, labels = zip(*corpus)
 
     unique_labels = sorted(set(labels))
-    label_code = {i: label for i, label in unique_labels}
+    label_code = {str(i): label for i, label in enumerate(unique_labels)}
 
-    reverse_code = {label: i for i, label in enumerate(sorted(labels))}
+    reverse_code = {label: val for val, label in label_code.items()}
     pos_labels = [reverse_code[label] for label in pos_labels]
     labels = [reverse_code[label] for label in labels]
 
