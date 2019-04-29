@@ -92,7 +92,7 @@ def train(shortforms, additional=None, n_jobs=1):
     preds = cross_val_predict(deft_cl.estimator, train, labels, n_jobs=n_jobs,
                               cv=5)
     conf_matrix = confusion_matrix(labels, preds)
-    cv_results = {'labels': sorted(set(labels)),
+    cv_results = {'labels': unique_labels,
                   'conf_matrix': conf_matrix.tolist(),
                   'f1': {'mean': cv['mean_test_f1'][0],
                          'std': cv['std_test_f1'][0]},
