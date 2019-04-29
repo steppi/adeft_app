@@ -75,6 +75,14 @@ def train(shortforms, additional=None, n_jobs=1):
     pos_labels = sorted(set(pos_labels))
 
     train, labels = zip(*corpus)
+
+    unique_labels = sorted(set(labels))
+    label_code = {i: label for i, label in unique_labels}
+
+    reverse_code = {label: i for i, label in enumerate(sorted(labels))}
+    pos_labels = [reverse_code[label] for label in pos_labels]
+    labels = [reverse_code[label] for label in labels]
+
     deft_cl = DeftClassifier(shortforms, pos_labels)
     params = {'C': [100.0], 'max_features': [10000],
               'ngram_range': [(1, 2)]}
@@ -123,6 +131,9 @@ def train(shortforms, additional=None, n_jobs=1):
     with open(os.path.join(models_path, agg_name,
                            f'{agg_name}_stats.json'), 'w') as f:
         json.dump(data, f)
+    with open(os.path.join(models_path, agg_name,
+                           f'{agg_name}_label_code.json'), 'w') as f:
+        json.dump(label_code, f)
     return deft_cl
 
 
