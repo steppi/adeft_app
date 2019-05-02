@@ -93,11 +93,12 @@ def fix_groundings():
                 names[new_ground] = names.pop(old_ground)
                 transition = session['transition']
                 transition[old_ground] = new_ground
+                top_longforms = session['top_longforms']
+                top_longforms = {transition[grounding]: longform
+                                 for grounding, longform in
+                                 top_longforms.items()}
+                session['top_longforms'] = top_longforms
             session['longforms'], session['names'] = longforms, names
-            top_longforms = session['top_longforms']
-            top_longforms = {transition[grounding]: longform
-                             for grounding, longform in top_longforms.items()}
-            session['top_longforms'] = top_longforms
     return render_template('fix.jinja2', longforms=session['longforms'],
                            names=session['names'],
                            top_longforms=session['top_longforms'])
