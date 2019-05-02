@@ -15,20 +15,28 @@
 	    Grounding
 	  </th>
 	  <th>
+	    Mined Longform
+	  </th>
+	  <th>
 	    New Name
 	  </th>
 	  <th>
 	    New Grounding
 	  </th>
 	</tr>
-	{% for grounding, longforms in longforms %}
+	{% for grounding, longform_list in longforms %}
 	  <tr>
 	    <form action="{{ url_for('ground.submit_fix') }}" method="POST">
 	      <td>
-		<span title="{{ longforms }}"> {{ names[grounding] }} </span>
+		{{ names[grounding] }}
 	      </td>
 	      <td>
 		{{ grounding }}
+	      </td>
+	      <td>
+		<span title="{{ longform_list}}">
+		  {{ top_longforms[grounding] }}
+		</span>
 	      </td>
 	      <td>
 		<input name="new-name.{{ loop.index }}" type="text">
@@ -46,7 +54,9 @@
 	  <td></td>
 	  <td></td>
 	  <td>
-	    <input name="submit" type="submit" value="submit">
+	    <form action="{{ url_for('ground.submit_fix') }}" method="POST">
+	      <input name="submit" type="submit" value="submit">
+	    </form>
 	  </td>
 	</tr>
       </table>
