@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Deft</title>
+  </head>
+  <body>
+    <h1><a href="{{ url_for('ground.main') }}">Deft Grounding Assistant</a></h1>
+    <form action="{{ url_for('ground.fix_groundings') }}" method="POST">
+      <table>
+	<tr>
+	  <th>
+	    Name
+	  </th>
+	  <th>
+	    Grounding
+	  </th>
+	  <th>
+	    New Name
+	  </th>
+	  <th>
+	    New Grounding
+	  </th>
+	</tr>
+	{% for grounding, longforms in longforms %}
+	  <tr>
+	    <form action="{{ url_for('ground.submit_fix') }}" method="POST">
+	      <td>
+		<span title="{{ longforms }}"> {{ names[grounding] }} </span>
+	      </td>
+	      <td>
+		{{ grounding }}
+	      </td>
+	      <td>
+		<input name="new-name.{{ loop.index }}" type="text">
+	      </td>
+	      <td>
+		<input name="new-ground.{{ loop.index }}"  type="text">
+		<input name="s.{{ loop.index  }}" type="submit" value="Fix">
+	      </td>
+	    </form>
+	  </tr>
+	{% endfor %}
+	<tr>
+	  <td></td>
+	  <td></td>
+	  <td></td>
+	  <td></td>
+	  <td>
+	    <input name="submit" type="submit" value="submit">
+	  </td>
+	</tr>
+      </table>
+    </form>
+  </body>
+</html>

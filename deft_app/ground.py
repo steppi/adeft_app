@@ -1,6 +1,6 @@
 import os
 import json
-
+from collections import defaultdict
 
 from flask import (
     Blueprint, request, render_template, session, url_for, redirect
@@ -38,6 +38,53 @@ def load_longforms():
      session['groundings'], session['pos_labels']) = data
     data, pos_labels = _process_data(*data)
     return render_template('input.jinja2', data=data, pos_labels=pos_labels)
+
+
+@bp.route('/fix', methods=['POST'])
+def fix():
+    model_name = request.form['modelname']
+    models_path = os.path.join(DATA_PATH, 'models', model_name)
+    with open(os.path.join(models_path,
+                           model_name + '_grounding_dict.json')) as f:
+        grounding_dict = json.load(f)
+    with open(os.path.join(models_path, model_name + '_names.json')) as f:
+        names = json.load(f)
+    longforms = defaultdict(list)
+    for grounding_map in grounding_dict.values():
+        for longform, grounding in grounding_map.items():
+            if grounding != 'ungrounded':
+                longforms[grounding].append(longform)
+    longforms = [[grounding, '::'.join(longform)] for grounding, longform
+                 in longforms.items()]
+
+    session['longforms'], session['names'] = longforms, names
+    return render_template('fix.jinja2', longforms=longforms, names=names)
+
+
+@bp.route('/fix_groundings', methods=['POST'])
+def fix_groundings():
+    for key in request.form:
+        if key.startswith('s.'):
+            index = key.partition('.')[-1]
+            new_name = request.form[f'new-name.{index}']
+            new_ground = request.form[f'new-ground.{index}']
+            names = session['names']
+            longforms = session['longforms']
+            old_ground = longforms[int(index)-1][0]
+            if new_name:
+                names[old_ground] = new_name
+            if new_ground:
+                longforms[int(index)-1][0] = new_ground
+                names[new_ground] = names.pop(old_ground)
+            session['longforms'], session['names'] = longforms, names
+    return render_template('fix.jinja2', longforms=session['longforms'],
+                           names=session['names'])
+
+
+@bp.route('/submit_fix', methods=['POST'])
+def submit_fix():
+    return render_template('fix.jinja2', longforms=session['longforms'],
+                           names=session['names'])
 
 
 @bp.route('/input', methods=['POST'])
