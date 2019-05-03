@@ -128,6 +128,26 @@ def submit_fix():
                            f'{model_name}_names.json'), 'w') as f:
         json.dump(names, f)
     model.dump_model(os.path.join(models_path, f'{model_name}_model.gz'))
+    # update groundings files created before training model
+    groundings_path = os.path.join(DATA_PATH, 'groundings')
+    for shortform, grounding_map in grounding_dict.items():
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_names.json'), 'r') as f:
+            names = json.load(f)
+        names = {transition[label]: name for label, name in names.items()}
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_names.json'), 'w') as f:
+            json.dump(names, f)
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_pos_labels.json'), 'r') as f:
+            pos_labels = json.load(f)
+        pos_labels = [transition[label] for label in pos_labels]
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_pos_labels.json'), 'w') as f:
+            json.dump(pos_labels, f)
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_grounding_map.json'), 'w') as f:
+            json.dump(grounding_map, f)
     session.clear()
     return render_template('index.jinja2')
 
