@@ -143,6 +143,9 @@ def train(shortforms, additional=None, n_jobs=1):
     with open(os.path.join(models_path, agg_name,
                            f'{agg_name}_stats.json'), 'w') as f:
         json.dump(data, f)
+    with open(os.path.join(models_path, agg_name,
+                           f'{agg_name}_pos_labels.json'), 'w') as f:
+        json.dump(pos_labels, f)
     return deft_cl
 
 
