@@ -1,5 +1,6 @@
 import os
 import json
+from copy import deepcopy
 from collections import defaultdict
 
 from flask import (
@@ -44,6 +45,8 @@ def load_longforms():
 @bp.route('/fix', methods=['POST'])
 def fix():
     model_name = request.form['modelname']
+    if not model_name:
+        return render_template('index.jinja2')
     models_path = os.path.join(DATA_PATH, 'models', model_name)
     with open(os.path.join(models_path,
                            model_name + '_grounding_dict.json')) as f:
@@ -66,12 +69,14 @@ def fix():
                      for grounding, longform_list in longforms.items()}
     longforms = [[grounding, '\n'.join(longform)] for grounding, longform
                  in longforms.items()]
+    original_longforms = deepcopy(longforms)
     transition = {grounding: grounding for grounding, _ in longforms}
     transition['ungrounded'] = 'ungrounded'
     session['transition'] = transition
     session['model_name'] = model_name
     session['longforms'], session['names'] = longforms, names
     session['top_longforms'] = top_longforms
+    session['original_longforms'] = original_longforms
     return render_template('fix.jinja2', longforms=longforms, names=names,
                            top_longforms=top_longforms)
 
@@ -85,18 +90,18 @@ def fix_groundings():
             new_ground = request.form[f'new-ground.{index}']
             names = session['names']
             longforms = session['longforms']
+            original_longforms = session['original_longforms']
             old_ground = longforms[int(index)-1][0]
+            origin_ground = original_longforms[int(index)-1][0]
             if new_name:
                 names[old_ground] = new_name
             if new_ground:
                 longforms[int(index)-1][0] = new_ground
                 names[new_ground] = names.pop(old_ground)
                 transition = session['transition']
-                transition[old_ground] = new_ground
+                transition[origin_ground] = new_ground
                 top_longforms = session['top_longforms']
-                top_longforms = {transition[grounding]: longform
-                                 for grounding, longform in
-                                 top_longforms.items()}
+                top_longforms[new_ground] = top_longforms.pop(old_ground)
                 session['top_longforms'] = top_longforms
             session['longforms'], session['names'] = longforms, names
     return render_template('fix.jinja2', longforms=session['longforms'],
@@ -121,6 +126,7 @@ def submit_fix():
                       for shortform, grounding_map in grounding_dict.items()}
     for index, label in enumerate(model.estimator.classes_):
         model.estimator.classes_[index] = transition[label]
+    # update files for model
     with open(os.path.join(models_path,
                            f'{model_name}_grounding_dict.json'), 'w') as f:
         json.dump(grounding_dict, f)
