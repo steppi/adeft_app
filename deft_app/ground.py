@@ -11,6 +11,8 @@ from deft.modeling.classify import load_model
 
 from .trips import trips_ground
 from .locations import DATA_PATH
+from .scripts.model_to_s3 import model_to_s3
+from .scripts.consistency import check_consistency
 
 
 bp = Blueprint('ground', __name__)
@@ -155,6 +157,10 @@ def submit_fix():
                                f'{shortform}_grounding_map.json'), 'w') as f:
             json.dump(grounding_map, f)
     session.clear()
+    if check_consistency(model_name):
+        print('Yes!')
+    else:
+        print('NO!')
     return render_template('index.jinja2')
 
 
