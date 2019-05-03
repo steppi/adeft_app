@@ -93,6 +93,25 @@ def train(shortforms, additional=None, n_jobs=1):
                   'recall': {'mean': cv['mean_test_rc'][0],
                              'std': cv['std_test_rc'][0]}}
 
+    logit = deft_cl.estimator.named_steps['logit']
+    coef = logit.coef_
+    classes = logit.classes_
+
+    feature_names = deft_cl.estimator.named_steps['tfidf'].get_feature_names()
+    important_terms = {}
+    for index, label in enumerate(classes):
+        fi = pd.DataFrame({'name': feature_names,
+                           'importance': coef[index, :]})
+        fi.sort_values('importance', ascending=False, inplace=True)
+        top = fi.head(20)
+        bottom = fi.tail(20)
+        important_terms[label] = {'top':
+                                  list(zip(top['name'],
+                                           top['importance'])),
+                                  'bottom':
+                                  list(zip(bottom['name'],
+                                           bottom['importance']))}
+
     unlabeled = []
     recognizers = [DeftRecognizer(shortform, grounding_map)
                    for shortform, grounding_Map in grounding_dict.items()]
@@ -107,7 +126,8 @@ def train(shortforms, additional=None, n_jobs=1):
     preds = dict(Counter(preds))
     data = {'stats': stats,
             'cv_results': cv_results,
-            'preds_on_unlabeled': preds}
+            'preds_on_unlabeled': preds,
+            'important_terms': important_terms}
     try:
         os.mkdir(os.path.join(models_path, agg_name))
     except FileExistsError:

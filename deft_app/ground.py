@@ -1,11 +1,13 @@
 import os
 import json
-
+from copy import deepcopy
+from collections import defaultdict
 
 from flask import (
     Blueprint, request, render_template, session, url_for, redirect
     )
 
+from deft.modeling.classify import load_model
 
 from .trips import trips_ground
 from .locations import DATA_PATH
@@ -38,6 +40,122 @@ def load_longforms():
      session['groundings'], session['pos_labels']) = data
     data, pos_labels = _process_data(*data)
     return render_template('input.jinja2', data=data, pos_labels=pos_labels)
+
+
+@bp.route('/fix', methods=['POST'])
+def fix():
+    model_name = request.form['modelname']
+    if not model_name:
+        return render_template('index.jinja2')
+    models_path = os.path.join(DATA_PATH, 'models', model_name)
+    with open(os.path.join(models_path,
+                           model_name + '_grounding_dict.json')) as f:
+        grounding_dict = json.load(f)
+    with open(os.path.join(models_path, model_name + '_names.json')) as f:
+        names = json.load(f)
+    longforms = defaultdict(list)
+    longform_scores = defaultdict(int)
+    for shortform, grounding_map in grounding_dict.items():
+        with open(os.path.join(DATA_PATH, 'longforms',
+                               f'{shortform}_longforms.json'), 'r') as f:
+            lf_scores = json.load(f)
+            for lf, score in lf_scores:
+                longform_scores[lf] += score
+        for longform, grounding in grounding_map.items():
+            if grounding != 'ungrounded':
+                longforms[grounding].append(longform)
+    top_longforms = {grounding: max(longform_list,
+                                    key=lambda x: longform_scores[x])
+                     for grounding, longform_list in longforms.items()}
+    longforms = [[grounding, '\n'.join(longform)] for grounding, longform
+                 in longforms.items()]
+    original_longforms = deepcopy(longforms)
+    transition = {grounding: grounding for grounding, _ in longforms}
+    transition['ungrounded'] = 'ungrounded'
+    session['transition'] = transition
+    session['model_name'] = model_name
+    session['longforms'], session['names'] = longforms, names
+    session['top_longforms'] = top_longforms
+    session['original_longforms'] = original_longforms
+    return render_template('fix.jinja2', longforms=longforms, names=names,
+                           top_longforms=top_longforms)
+
+
+@bp.route('/fix_groundings', methods=['POST'])
+def fix_groundings():
+    for key in request.form:
+        if key.startswith('s.'):
+            index = key.partition('.')[-1]
+            new_name = request.form[f'new-name.{index}']
+            new_ground = request.form[f'new-ground.{index}']
+            names = session['names']
+            longforms = session['longforms']
+            original_longforms = session['original_longforms']
+            old_ground = longforms[int(index)-1][0]
+            origin_ground = original_longforms[int(index)-1][0]
+            if new_name:
+                names[old_ground] = new_name
+            if new_ground:
+                longforms[int(index)-1][0] = new_ground
+                names[new_ground] = names.pop(old_ground)
+                transition = session['transition']
+                transition[origin_ground] = new_ground
+                top_longforms = session['top_longforms']
+                top_longforms[new_ground] = top_longforms.pop(old_ground)
+                session['top_longforms'] = top_longforms
+            session['longforms'], session['names'] = longforms, names
+    return render_template('fix.jinja2', longforms=session['longforms'],
+                           names=session['names'],
+                           top_longforms=session['top_longforms'])
+
+
+@bp.route('/submit_fix', methods=['POST'])
+def submit_fix():
+    model_name = session['model_name']
+    models_path = os.path.join(DATA_PATH, 'models', model_name)
+    with open(os.path.join(models_path,
+                           f'{model_name}_grounding_dict.json')) as f:
+        grounding_dict = json.load(f)
+        model = load_model(os.path.join(models_path,
+                                        f'{model_name}_model.gz'))
+    transition = session['transition']
+    names = session['names']
+    grounding_dict = {shortform: {longform: transition[grounding]
+                                  for longform, grounding in
+                                  grounding_map.items()}
+                      for shortform, grounding_map in grounding_dict.items()}
+    for index, label in enumerate(model.estimator.classes_):
+        model.estimator.classes_[index] = transition[label]
+    # update files for model
+    with open(os.path.join(models_path,
+                           f'{model_name}_grounding_dict.json'), 'w') as f:
+        json.dump(grounding_dict, f)
+    with open(os.path.join(models_path,
+                           f'{model_name}_names.json'), 'w') as f:
+        json.dump(names, f)
+    model.dump_model(os.path.join(models_path, f'{model_name}_model.gz'))
+    # update groundings files created before training model
+    groundings_path = os.path.join(DATA_PATH, 'groundings')
+    for shortform, grounding_map in grounding_dict.items():
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_names.json'), 'r') as f:
+            names = json.load(f)
+        names = {transition[label]: name for label, name in names.items()}
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_names.json'), 'w') as f:
+            json.dump(names, f)
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_pos_labels.json'), 'r') as f:
+            pos_labels = json.load(f)
+        pos_labels = [transition[label] for label in pos_labels]
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_pos_labels.json'), 'w') as f:
+            json.dump(pos_labels, f)
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_grounding_map.json'), 'w') as f:
+            json.dump(grounding_map, f)
+    session.clear()
+    return render_template('index.jinja2')
 
 
 @bp.route('/input', methods=['POST'])
@@ -117,6 +235,7 @@ def generate_grounding_map():
     with open(os.path.join(groundings_path,
                            f'{shortform}_pos_labels.json'), 'w') as f:
         json.dump(pos_labels, f)
+    session.clear()
     return redirect(url_for('ground.main'))
 
 
