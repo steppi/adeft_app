@@ -14,6 +14,8 @@ from deft.modeling.classify import DeftClassifier
 from deft.modeling.corpora import DeftCorpusBuilder
 
 from deft_app.locations import DATA_PATH
+from deft_app.consistency import check_grounding_dict, \
+    check_consistency_grounding_dict_pos_labels
 
 
 def train(shortforms, additional=None, n_jobs=1):
@@ -40,7 +42,12 @@ def train(shortforms, additional=None, n_jobs=1):
         with open(os.path.join(groundings_path, shortform,
                                f'{shortform}_pos_labels.json'), 'r') as f:
             pos_labels.update(json.load(f))
+
+    if not check_grounding_dict(grounding_dict):
+        raise RuntimeError('Inconsistent grounding maps for shortforms.')
     pos_labels = sorted(pos_labels)
+
+    if not check_consistency
 
     # model name is built up from shortforms in model
     # (most models only have one shortform)
@@ -73,6 +80,10 @@ def train(shortforms, additional=None, n_jobs=1):
             pos_labels.append(grounding)
 
     pos_labels = sorted(set(pos_labels))
+    if not check_consistency_grounding_dict_pos_labels(grounding_dict,
+                                                       pos_labels):
+        raise RuntimeError('Positive labels exist that are not in'
+                           ' grounding dict.')
 
     train, labels = zip(*corpus)
     deft_cl = DeftClassifier(shortforms, pos_labels)
