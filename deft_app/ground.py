@@ -177,7 +177,7 @@ def submit_fix():
         pos_labels_dict[shortform] = [transition[label]
                                       for label in pos_labels]
 
-    if not check_names_consistency(names.values()):
+    if not check_names_consistency(names_dict.values()):
         logger.error('Inconsistent names for equivalent shortforms.')
         return redirect(url_for('submit_fix'))
 
@@ -212,7 +212,6 @@ def submit_fix():
         with open(os.path.join(groundings_path, shortform,
                                f'{shortform}_pos_labels.json'), 'w') as f:
             json.dump(pos_labels_dict[shortform], f)
-    model_to_s3(model_name)
     session.clear()
     return render_template('index.jinja2')
 
