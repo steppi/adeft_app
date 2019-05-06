@@ -6,7 +6,7 @@ import tempfile
 
 from deft.download import get_s3_models
 
-from deft_app.locations import DATA_PATH
+from deft_app.locations import DATA_PATH, S3_BUCKET
 
 
 def model_to_s3(model_name):
@@ -22,7 +22,7 @@ def model_to_s3(model_name):
     with tempfile.NamedTemporaryFile() as temp:
         with open(temp.name, 'w') as f:
             json.dump(s3_models, f)
-        client.upload_file(temp.name, 'deft-models', 's3_models.json')
+        client.upload_file(temp.name, S3_BUCKET, 's3_models.json')
 
     file_names = [f'{model_name}_{end}' for end in
                   ('model.gz', 'grounding_dict.json', 'names.json',
@@ -30,7 +30,7 @@ def model_to_s3(model_name):
 
     for file_name in file_names:
         client.upload_file(os.path.join(local_models_path,
-                                        file_name), 'deft-models',
+                                        file_name), S3_BUCKET,
                            os.path.join(model_name, file_name))
 
 
