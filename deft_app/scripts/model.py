@@ -12,7 +12,7 @@ from deft.modeling.classify import DeftClassifier
 from deft.modeling.corpora import DeftCorpusBuilder
 
 from deft_app.locations import DATA_PATH
-from deft_app.consistency import check_grounding_dict, \
+from deft_app.scripts.consistency import check_grounding_dict, \
     check_consistency_grounding_dict_pos_labels
 
 
