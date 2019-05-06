@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 from copy import deepcopy
 from collections import defaultdict
 
@@ -12,8 +13,14 @@ from deft.modeling.classify import load_model
 from .trips import trips_ground
 from .locations import DATA_PATH
 from .scripts.model_to_s3 import model_to_s3
-from .scripts.consistency import check_consistency
+from .scripts.consistency import (check_grounding_dict,
+                                  check_model_consistency,
+                                  check_consistency_grounding_dict_pos_labels,
+                                  check_consistency_names_grounding_dict,
+                                  check_names_consistency)
 
+
+logger = logging.getLogger(__file__)
 
 bp = Blueprint('ground', __name__)
 
@@ -118,16 +125,70 @@ def submit_fix():
     with open(os.path.join(models_path,
                            f'{model_name}_grounding_dict.json')) as f:
         grounding_dict = json.load(f)
-        model = load_model(os.path.join(models_path,
-                                        f'{model_name}_model.gz'))
+    model = load_model(os.path.join(models_path,
+                                    f'{model_name}_model.gz'))
     transition = session['transition']
     names = session['names']
     grounding_dict = {shortform: {longform: transition[grounding]
                                   for longform, grounding in
                                   grounding_map.items()}
                       for shortform, grounding_map in grounding_dict.items()}
+
+    if not check_grounding_dict(grounding_dict):
+        logger.error('grounding dict has become inconsistent.\n'
+                     'This should not happen if the program is working'
+                     ' as expected.')
+        return redirect(url_for('submit_fix'))
+
     for index, label in enumerate(model.estimator.classes_):
         model.estimator.classes_[index] = transition[label]
+
+    with open(os.path.join(models_path,
+                           f'{model_name}_pos_labels.json'), 'r') as f:
+        pos_labels = json.load(f)
+    pos_labels = sorted(transition[label] for label in pos_labels)
+
+    if not check_consistency_grounding_dict_pos_labels(grounding_dict,
+                                                       pos_labels):
+        logger.error('pos labels exist that are not in grounding dict')
+        return redirect(url_for('submit_fix'))
+
+    if not check_consistency_names_grounding_dict(grounding_dict, names):
+        logger.error('names have become out of sync with grounding dict.')
+        return redirect(url_for('submit_fix'))
+
+    if not check_model_consistency(model, grounding_dict, pos_labels):
+        logger.error('Model state has become inconsistent.')
+        return redirect(url_for('submit_fix'))
+
+    # update groundings files created before training model
+    groundings_path = os.path.join(DATA_PATH, 'groundings')
+    names_dict = {}
+    pos_labels_dict = {}
+    for shortform, grounding_map in grounding_dict.items():
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_names.json'), 'r') as f:
+            temp = json.load(f)
+        names_dict[shortform] = {transition[label]: name
+                                 for label, name in temp.items()}
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_pos_labels.json'), 'r') as f:
+            temp = json.load(f)
+        pos_labels_dict[shortform] = [transition[label]
+                                      for label in pos_labels]
+
+    if not check_names_consistency(names.values()):
+        logger.error('Inconsistent names for equivalent shortforms.')
+        return redirect(url_for('submit_fix'))
+
+    all_pos_labels = sorted(pos_label for labels in pos_labels_dict.values()
+                            for pos_label in labels)
+
+    if not all_pos_labels == pos_labels:
+        logger.error('positive labels have become out of sync for model'
+                     ' and groundings files.')
+        return redirect(url_for('submit_fix'))
+
     # update files for model
     with open(os.path.join(models_path,
                            f'{model_name}_grounding_dict.json'), 'w') as f:
@@ -135,32 +196,24 @@ def submit_fix():
     with open(os.path.join(models_path,
                            f'{model_name}_names.json'), 'w') as f:
         json.dump(names, f)
+    with open(os.path.join(models_path,
+                           f'{model_name}_pos_labels.json'), 'w') as f:
+        json.dump(pos_labels, f)
     model.dump_model(os.path.join(models_path, f'{model_name}_model.gz'))
-    # update groundings files created before training model
-    groundings_path = os.path.join(DATA_PATH, 'groundings')
+
+    # update groundings files used for training model
     for shortform, grounding_map in grounding_dict.items():
-        with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_names.json'), 'r') as f:
-            names = json.load(f)
-        names = {transition[label]: name for label, name in names.items()}
-        with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_names.json'), 'w') as f:
-            json.dump(names, f)
-        with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_pos_labels.json'), 'r') as f:
-            pos_labels = json.load(f)
-        pos_labels = [transition[label] for label in pos_labels]
-        with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_pos_labels.json'), 'w') as f:
-            json.dump(pos_labels, f)
         with open(os.path.join(groundings_path, shortform,
                                f'{shortform}_grounding_map.json'), 'w') as f:
             json.dump(grounding_map, f)
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_names.json'), 'w') as f:
+            json.dump(names_dict[shortform], f)
+        with open(os.path.join(groundings_path, shortform,
+                               f'{shortform}_pos_labels.json'), 'w') as f:
+            json.dump(pos_labels_dict[shortform], f)
+    model_to_s3(model_name)
     session.clear()
-    if check_consistency(model_name):
-        print('Yes!')
-    else:
-        print('NO!')
     return render_template('index.jinja2')
 
 
