@@ -66,16 +66,3 @@ def check_dictionaries(dicts):
             big_dict[key].append(value)
     lengths = [len(value) for value in big_dict.values]
     return max(lengths) == 1
-
-        with open(os.path.join(DATA_PATH, 'groundings', shortform,
-                               f'{shortform}_pos_labels.json'), 'r') as f:
-            local_pos_labels.update(json.load(f))
-    if set(pos_labels) != local_pos_labels:
-        logger.warning('positive labels have got out of sync between model'
-                       ' and pre-training grounding files.')
-        return False
-    if not check_dictionaries(names_list):
-        logger.warning('inconsistent names dictionaries for different'
-                       ' shortforms in model with multiple shortforms')
-        return False
-    return True
