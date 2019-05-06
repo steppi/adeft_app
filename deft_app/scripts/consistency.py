@@ -64,5 +64,5 @@ def check_dictionaries(dicts):
     for dictionary in dicts:
         for key, value in dictionary.items():
             big_dict[key].append(value)
-    lengths = [len(value) for value in big_dict.values]
+    lengths = [len(value) for value in big_dict.values()]
     return max(lengths) == 1
