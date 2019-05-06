@@ -47,8 +47,6 @@ def train(shortforms, additional=None, n_jobs=1):
         raise RuntimeError('Inconsistent grounding maps for shortforms.')
     pos_labels = sorted(pos_labels)
 
-    if not check_consistency
-
     # model name is built up from shortforms in model
     # (most models only have one shortform)
     agg_name = ':'.join(sorted(shortforms))
