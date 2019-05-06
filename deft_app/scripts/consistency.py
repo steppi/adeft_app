@@ -1,13 +1,4 @@
-import os
-import json
-import logging
 from collections import defaultdict
-
-from deft.modeling.classify import load_model
-
-from deft_app.locations import DATA_PATH
-
-logger = logging.getLogger(__file__)
 
 
 def check_grounding_dict(grounding_dict):
