@@ -54,10 +54,7 @@ def initialize():
     model = load_model(os.path.join(models_path, f'{model_name}_model.gz'))
     labels = model.estimator.named_steps['logit'].classes_.tolist()
     labels = [label for label in labels if label != 'ungrounded']
-
-    with open(os.path.join(models_path,
-                           f'{model_name}_pos_labels.json'), 'r') as f:
-        pos_labels = json.load(f)
+    pos_labels = model.pos_labels
 
     original_longforms = deepcopy(longforms)
     transition = {grounding: grounding for grounding, _ in longforms}
@@ -228,6 +225,7 @@ def _load_model_files(model_name):
 
 def _update_model_files(model_name, model, grounding_dict, names, pos_labels):
     models_path = os.path.join(DATA_PATH, 'models', model_name)
+    model.pos_labels = pos_labels
     with open(os.path.join(models_path,
                            f'{model_name}_grounding_dict.json'), 'w') as f:
         json.dump(grounding_dict, f)
