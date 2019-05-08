@@ -38,12 +38,8 @@ def check_model_consistency(model, grounding_dict, pos_labels):
     model_shortforms = set(model.shortforms)
     consistent_shortforms = shortforms == model_shortforms
 
-    pos_labels = set(pos_labels)
-    model_pos_labels = set(model.pos_labels)
-    consistent_pos_labels = pos_labels == model_pos_labels
-
     model_labels = set(model.estimator.named_steps['logit'].classes_)
-
+    consistent_pos_labels = set(pos_labels) <= model_labels
     return consistent_labels and consistent_shortforms and \
         consistent_pos_labels
 
