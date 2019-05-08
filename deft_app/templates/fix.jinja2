@@ -48,17 +48,30 @@
 	</form>
       </tr>
       {% endfor %}
+    </table>
+    <table>
       <tr>
-	<td></td>
-	<td></td>
-	<td></td>
-	<td></td>
-	<td>
-	  <form action="{{ url_for('fix.submit') }}" method="POST">
-	    <input name="submit" type="submit" value="submit">
+	<th>
+	  Labels
+	</th>
+      </tr>
+      {% for label in labels %}
+      <tr>
+	<td class="filled 
+		   {{ 'positive' if label in pos_labels else 'blank' }}">
+	  {{ label }}
+	</td>
+	<td class="blank">
+	  <form action="{{ url_for('fix.toggle_positive') }}"
+		method="POST">
+	    <input name="pos-label.{{ label }}" value="+" type="submit">
 	  </form>
 	</td>
       </tr>
+      {% endfor %}
     </table>
+    <form action="{{ url_for('fix.submit') }}" method="POST">
+      <input name="submit" type="submit" value="submit">
+    </form>
   </body>
 </html>
