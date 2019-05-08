@@ -4,62 +4,60 @@
     <title>Deft</title>
   </head>
   <body>
-    <h1><a href="{{ url_for('ground.main') }}">Deft Grounding Assistant</a></h1>
-    <form action="{{ url_for('ground.fix_groundings') }}" method="POST">
-      <table>
-	<tr>
-	  <th>
-	    Name
-	  </th>
-	  <th>
-	    Grounding
-	  </th>
-	  <th>
-	    Mined Longform
-	  </th>
-	  <th>
-	    New Name
-	  </th>
-	  <th>
-	    New Grounding
-	  </th>
-	</tr>
-	{% for grounding, longform_list in longforms %}
-	  <tr>
-	    <form action="{{ url_for('ground.submit_fix') }}" method="POST">
-	      <td>
-		{{ names[grounding] }}
-	      </td>
-	      <td>
-		{{ grounding }}
-	      </td>
-	      <td>
-		<span title="{{ longform_list}}">
-		  {{ top_longforms[grounding] }}
-		</span>
-	      </td>
-	      <td>
-		<input name="new-name.{{ loop.index }}" type="text">
-	      </td>
-	      <td>
-		<input name="new-ground.{{ loop.index }}"  type="text">
-		<input name="s.{{ loop.index  }}" type="submit" value="Fix">
-	      </td>
-	    </form>
-	  </tr>
-	{% endfor %}
-	<tr>
-	  <td></td>
-	  <td></td>
-	  <td></td>
-	  <td></td>
+    <h1><a href="{{ url_for('main') }}">Deft Grounding Assistant</a></h1>
+    <table>
+      <tr>
+	<th>
+	  Name
+	</th>
+	<th>
+	  Grounding
+	</th>
+	<th>
+	  Mined Longform
+	</th>
+	<th>
+	  New Name
+	</th>
+	<th>
+	  New Grounding
+	</th>
+      </tr>
+      {% for grounding, longform_list in longforms %}
+      <tr>
+	<form action="{{ url_for('fix.change_grounding') }}" method="POST">
 	  <td>
-	    <form action="{{ url_for('ground.submit_fix') }}" method="POST">
-	      <input name="submit" type="submit" value="submit">
-	    </form>
+	    {{ names[grounding] }}
 	  </td>
-	</tr>
-      </table>
-    </form>
+	  <td>
+	    {{ grounding }}
+	  </td>
+	  <td>
+	    <span title="{{ longform_list}}">
+	      {{ top_longforms[grounding] }}
+	    </span>
+	  </td>
+	  <td>
+	    <input name="new-name.{{ loop.index }}" type="text">
+	  </td>
+	  <td>
+	    <input name="new-ground.{{ loop.index }}"  type="text">
+	    <input name="s.{{ loop.index  }}" type="submit" value="Fix">
+	  </td>
+	</form>
+      </tr>
+      {% endfor %}
+      <tr>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td></td>
+	<td>
+	  <form action="{{ url_for('fix.submit') }}" method="POST">
+	    <input name="submit" type="submit" value="submit">
+	  </form>
+	</td>
+      </tr>
+    </table>
   </body>
 </html>

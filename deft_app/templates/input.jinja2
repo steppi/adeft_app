@@ -8,7 +8,7 @@
     {% endblock %}
   </head>
   <body>
-    <h1><a href="{{ url_for('ground.main') }}">Deft Grounding Assistant</a></h1>
+    <h1><a href="{{ url_for('main') }}">Deft Grounding Assistant</a></h1>
     <form action="{{ url_for('ground.add_groundings') }}" method="POST">
       <p>
 	Name: <input name="name" type="text" id="name-box">
