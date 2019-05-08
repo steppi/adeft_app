@@ -147,7 +147,7 @@ def submit():
     for index, label in enumerate(model.estimator.classes_):
         model.estimator.classes_[index] = transition[label]
 
-    new_pos_labels = sorted(transition[label] for label in pos_labels)
+    new_pos_labels = session['pos_labels']
     new_names = session['names']
 
     # check consistency of newly generated files
