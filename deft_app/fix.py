@@ -111,6 +111,12 @@ def change_grounding():
 
 @bp.route('/fix_toggle_positive', methods=['POST'])
 def toggle_positive():
+    pos_labels = session['pos_labels']
+    for key in request.form:
+        if key.startswith('pos-label.'):
+            label = key.partition('.')[-1]
+            pos_labels = list(set(pos_labels) ^ set([label]))
+            session['pos_labels'] = pos_labels
     return render_template('fix.jinja2', longforms=session['longforms'],
                            names=session['names'],
                            top_longforms=session['top_longforms'],
