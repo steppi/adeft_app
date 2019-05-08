@@ -99,7 +99,10 @@ def change_grounding():
         session['longforms'], session['names'] = longforms, names
         labels = session['labels']
         labels = [transition[label] for label in labels]
+        pos_labels = session['pos_labels']
+        pos_labels = [transition[label] for label in pos_labels]
         session['labels'] = labels
+        session['pos_labels'] = pos_labels
     return render_template('fix.jinja2', longforms=session['longforms'],
                            names=session['names'],
                            top_longforms=session['top_longforms'],
