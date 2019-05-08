@@ -104,20 +104,35 @@ def train(shortforms, additional=None, n_jobs=1):
     coef = logit.coef_
     classes = logit.classes_
 
+    # calculate feature importance
     feature_names = deft_cl.estimator.named_steps['tfidf'].get_feature_names()
     important_terms = {}
-    for index, label in enumerate(classes):
+    # when there are greater than 2 classes, the logistic regression model
+    # will have a row of coefficients for each class. when there are only
+    # two classes, there is only one row of coefficients
+    if len(classes) > 2:
+        for index, label in enumerate(classes):
+            fi = pd.DataFrame({'name': feature_names,
+                               'importance': coef[index, :]})
+            fi.sort_values('importance', ascending=False, inplace=True)
+            top = fi.head(20)
+            bottom = fi.tail(20)
+            important_terms[label] = {'top':
+                                      list(zip(top['name'],
+                                               top['importance'])),
+                                      'bottom':
+                                      list(zip(bottom['name'],
+                                               bottom['importance']))}
+    else:
         fi = pd.DataFrame({'name': feature_names,
-                           'importance': coef[index, :]})
+                           'importance': coef})
         fi.sort_values('importance', ascending=False, inplace=True)
         top = fi.head(20)
         bottom = fi.tail(20)
-        important_terms[label] = {'top':
-                                  list(zip(top['name'],
-                                           top['importance'])),
-                                  'bottom':
-                                  list(zip(bottom['name'],
-                                           bottom['importance']))}
+        important_terms[classes[0]] = list(zip(top['name'],
+                                               top['importance']))
+        important_terms[classes[1]] = list(zip(bottom['name'],
+                                               bottom['importance']))
 
     unlabeled = []
     recognizers = [DeftRecognizer(shortform, grounding_map)
