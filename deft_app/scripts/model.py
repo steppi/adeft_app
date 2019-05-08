@@ -129,9 +129,9 @@ def train(shortforms, additional=None, n_jobs=1):
         fi.sort_values('importance', ascending=False, inplace=True)
         top = fi.head(20)
         bottom = fi.tail(20)
-        important_terms[classes[0]] = list(zip(top['name'],
+        important_terms[classes[1]] = list(zip(top['name'],
                                                top['importance']))
-        important_terms[classes[1]] = list(zip(bottom['name'],
+        important_terms[classes[0]] = list(zip(bottom['name'],
                                                bottom['importance']))
 
     unlabeled = []
