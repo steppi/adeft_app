@@ -204,6 +204,3 @@ def _update_model_files(model_name, model, grounding_dict, names, pos_labels):
                            f'{model_name}_pos_labels.json'), 'w') as f:
         json.dump(pos_labels, f)
     model.dump_model(os.path.join(models_path, f'{model_name}_model.gz'))
-
-
-def _up
