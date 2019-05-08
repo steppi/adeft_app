@@ -125,7 +125,7 @@ def toggle_positive():
 def submit():
     model_name = session['model_name']
     # load existing model files
-    model, grounding_dict, _, pos_labels = _load_model_files(model_name)
+    model, grounding_dict, _ = _load_model_files(model_name)
 
     # transition maps old groundings to new groundings
     transition = session['transition']
@@ -215,12 +215,9 @@ def _load_model_files(model_name):
     with open(os.path.join(models_path,
                            f'{model_name}_names.json')) as f:
         names = json.load(f)
-    with open(os.path.join(models_path,
-                           f'{model_name}_pos_labels.json')) as f:
-        pos_labels = json.load(f)
     model = load_model(os.path.join(models_path,
                                     f'{model_name}_model.gz'))
-    return model, grounding_dict, names, pos_labels
+    return model, grounding_dict, names
 
 
 def _update_model_files(model_name, model, grounding_dict, names, pos_labels):
