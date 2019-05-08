@@ -124,6 +124,8 @@ def train(shortforms, additional=None, n_jobs=1):
                                       list(zip(bottom['name'],
                                                bottom['importance']))}
     else:
+        # in case of binary labels, the coefficients correspond to the labels
+        # in LogisticRegression.classes_[1]
         fi = pd.DataFrame({'name': feature_names,
                            'importance': coef})
         fi.sort_values('importance', ascending=False, inplace=True)
