@@ -77,11 +77,12 @@ def delete_grounding():
 
 @bp.route('/ground_pos_label', methods=['POST'])
 def add_positive():
+    pos_labels = session['pos_labels']
     for key in request.form:
         if key.startswith('pos-label.'):
             label = key.partition('.')[-1]
-            session['pos_labels'] = list(set(session['pos_labels']) ^
-                                         set([label]))
+            pos_labels = list(set(pos_labels) ^ set([label]))
+            session['pos_labels'] = pos_labels
             break
     data = (session['longforms'], session['scores'], session['names'],
             session['groundings'], session['pos_labels'])
