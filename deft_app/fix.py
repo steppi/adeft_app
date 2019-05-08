@@ -50,6 +50,15 @@ def initialize():
                      for grounding, longform_list in longforms.items()}
     longforms = [[grounding, '\n'.join(longform)] for grounding, longform
                  in longforms.items()]
+
+    model = load_model(os.path.join(models_path, f'{model_name}_model.gz'))
+    labels = model.estimator.named_steps['logit'].classes_.tolist()
+    labels = [label for label in labels if label != 'ungrounded']
+
+    with open(os.path.join(models_path,
+                           f'{model_name}_pos_labels.json'), 'r') as f:
+        pos_labels = json.load(f)
+
     original_longforms = deepcopy(longforms)
     transition = {grounding: grounding for grounding, _ in longforms}
     transition['ungrounded'] = 'ungrounded'
@@ -58,8 +67,11 @@ def initialize():
     session['longforms'], session['names'] = longforms, names
     session['top_longforms'] = top_longforms
     session['original_longforms'] = original_longforms
+    session['labels'] = labels
+    session['pos_labels'] = pos_labels
     return render_template('fix.jinja2', longforms=longforms, names=names,
-                           top_longforms=top_longforms)
+                           top_longforms=top_longforms, labels=labels,
+                           pos_labels=pos_labels)
 
 
 @bp.route('/fix_change_grounding', methods=['POST'])
@@ -67,27 +79,40 @@ def change_grounding():
     for key in request.form:
         if key.startswith('s.'):
             index = key.partition('.')[-1]
-            new_name = request.form[f'new-name.{index}']
-            new_ground = request.form[f'new-ground.{index}']
-            names = session['names']
-            longforms = session['longforms']
-            original_longforms = session['original_longforms']
-            old_ground = longforms[int(index)-1][0]
-            origin_ground = original_longforms[int(index)-1][0]
-            if new_name:
-                names[old_ground] = new_name
-            if new_ground:
-                longforms[int(index)-1][0] = new_ground
-                names[new_ground] = names.pop(old_ground)
-                transition = session['transition']
-                transition[origin_ground] = new_ground
-                top_longforms = session['top_longforms']
-                top_longforms[new_ground] = top_longforms.pop(old_ground)
-                session['top_longforms'] = top_longforms
-            session['longforms'], session['names'] = longforms, names
+    new_name = request.form[f'new-name.{index}']
+    new_ground = request.form[f'new-ground.{index}']
+    names = session['names']
+    longforms = session['longforms']
+    original_longforms = session['original_longforms']
+    old_ground = longforms[int(index)-1][0]
+    origin_ground = original_longforms[int(index)-1][0]
+    if new_name:
+        names[old_ground] = new_name
+    if new_ground:
+        longforms[int(index)-1][0] = new_ground
+        names[new_ground] = names.pop(old_ground)
+        transition = session['transition']
+        transition[origin_ground] = new_ground
+        top_longforms = session['top_longforms']
+        top_longforms[new_ground] = top_longforms.pop(old_ground)
+        session['top_longforms'] = top_longforms
+        session['longforms'], session['names'] = longforms, names
+        labels = session['labels']
+        labels = [transition[label] for label in labels]
+        session['labels'] = labels
     return render_template('fix.jinja2', longforms=session['longforms'],
                            names=session['names'],
-                           top_longforms=session['top_longforms'])
+                           top_longforms=session['top_longforms'],
+                           labels=session['labels'])
+
+
+@bp.route('/fix_toggle_positive', methods=['POST'])
+def toggle_positive():
+    return render_template('fix.jinja2', longforms=session['longforms'],
+                           names=session['names'],
+                           top_longforms=session['top_longforms'],
+                           labels=session['labels'],
+                           pos_labels=session['pos_labels'])
 
 
 @bp.route('/fix_submit', methods=['POST'])
