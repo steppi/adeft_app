@@ -139,10 +139,11 @@ def submit():
                           in grounding_dict.items()}
 
     if not check_grounding_dict(new_grounding_dict):
-        logger.error('grounding dict has become inconsistent.\n'
-                     'This should not happen if the program is working'
-                     ' as expected.')
-        return redirect(url_for('main'))
+        message = ('grounding_dict has become inconsistent.\n'
+                   'This should not happen if the program is working'
+                   ' as expected.')
+        logger.error(message)
+        return render_template('error.jinja2', message=message)
 
     for index, label in enumerate(model.estimator.classes_):
         model.estimator.classes_[index] = transition[label]
@@ -153,16 +154,19 @@ def submit():
     # check consistency of newly generated files
     if not check_consistency_grounding_dict_pos_labels(grounding_dict,
                                                        new_pos_labels):
-        logger.error('pos labels exist that are not in grounding dict')
-        return redirect(url_for('main'))
+        message = 'pos labels exist that are not in grounding dict'
+        logger.error(message)
+        return render_template('error.jinja2', message=message)
 
     if not check_consistency_names_grounding_dict(grounding_dict, new_names):
-        logger.error('names have become out of sync with grounding dict.')
-        return redirect(url_for('main'))
+        message = 'names have become out of sync with grounding dict.'
+        logger.error(message)
+        return render_template('error.jinja2', message=message)
 
     if not check_model_consistency(model, grounding_dict, new_pos_labels):
-        logger.error('Model state has become inconsistent.')
-        return redirect(url_for('main'))
+        message = 'Model state has become inconsistent'
+        logger.error(message)
+        return render_template('error.jinja2', message=message)
 
     _update_model_files(model_name, model, new_grounding_dict, new_names,
                         new_pos_labels)
@@ -183,16 +187,18 @@ def submit():
                                           set(new_pos_labels))
 
     if not check_names_consistency(names_dict.values()):
-        logger.error('Inconsistent names for equivalent shortforms.')
-        return redirect(url_for('main'))
+        message = 'Inconsistent names for equivalent shortforms.'
+        logger.error(message)
+        return render_template('error.jinja2', message=message)
 
     all_pos_labels = sorted(pos_label for labels in pos_labels_dict.values()
                             for pos_label in labels)
+    if not all_pos_labels == set(new_pos_labels):
+        message = ('positive labels have become out of sync in model'
+                   ' and groundings files.')
+        logger.error(message)
+        return render_template('error.jinja2', message=message)
 
-    if not all_pos_labels == new_pos_labels:
-        logger.error('positive labels have become out of sync for model'
-                     ' and groundings files.')
-        return redirect(url_for('main'))
 
     # update groundings files used for training model
     for shortform, grounding_map in new_grounding_dict.items():
