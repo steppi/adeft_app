@@ -76,8 +76,8 @@ def change_grounding():
     for key in request.form:
         if key.startswith('s.'):
             index = key.partition('.')[-1]
-    new_name = request.form[f'new-name.{index}']
-    new_ground = request.form[f'new-ground.{index}']
+    new_name = request.form[f'new-name.{index}'].strip()
+    new_ground = request.form[f'new-ground.{index}'].strip()
     names = session['names']
     longforms = session['longforms']
     original_longforms = session['original_longforms']

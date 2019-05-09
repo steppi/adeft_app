@@ -40,8 +40,8 @@ def initialize():
 
 @bp.route('/ground_add', methods=['POST'])
 def add_groundings():
-    name = request.form['name']
-    grounding = request.form['grounding']
+    name = request.form['name'].strip()
+    grounding = request.form['grounding'].strip()
     names, groundings = session['names'], session['groundings']
     if name and grounding:
         selected = request.form.getlist('select')
