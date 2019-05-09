@@ -56,9 +56,9 @@ def check_dictionaries(dicts):
     Two dictionaries are consistent with eachother if there does not exist a
     key k that has a different associated value in each dictionary
     """
-    big_dict = defaultdict(list)
+    big_dict = defaultdict(set)
     for dictionary in dicts:
         for key, value in dictionary.items():
-            big_dict[key].append(value)
+            big_dict[key].add(value)
     lengths = [len(value) for value in big_dict.values()]
-    return max(lengths) == 1
+    return max(lengths) <= 1
