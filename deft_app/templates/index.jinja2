@@ -6,7 +6,7 @@
   <body>
     <h1>Deft Grounding Assistant</h1>
     <h2>Ground Shortform</h2>
-    <form method="POST" action = {{ url_for('ground.load_longforms') }} >
+    <form method="POST" action = {{ url_for('ground.initialize') }} >
       <p>
 	Shortform: <input name="shortform" type="text">
 	Cutoff: <input name="cutoff" type="text">
@@ -14,7 +14,7 @@
       </p>
     </form>
     <h2>Fix groundings</h1>
-    <form method="POST" action = {{ url_for('ground.fix') }} >
+    <form method="POST" action = {{ url_for('fix.initialize') }} >
       <p>
 	Model Name: <input name="modelname" type="text">
 	<input type="submit" value="submit2">

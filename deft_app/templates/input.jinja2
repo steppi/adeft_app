@@ -2,13 +2,13 @@
 <html lang="en">
   <head>
     <title>Deft</title>
-    <link rel="stylesheet" type="text/css" href="static/style.css">
+    <link rel="stylesheet" type="text/css" href="static/ground.css">
     {% block javascript %}
       <script src="{{ url_for('static', filename='scripts.js') }}"></script>
     {% endblock %}
   </head>
   <body>
-    <h1><a href="{{ url_for('ground.main') }}">Deft Grounding Assistant</a></h1>
+    <h1><a href="{{ url_for('main') }}">Deft Grounding Assistant</a></h1>
     <form action="{{ url_for('ground.add_groundings') }}" method="POST">
       <p>
 	Name: <input name="name" type="text" id="name-box">
@@ -34,7 +34,7 @@
 	  <td class="pad blank">
 	  </td>
 	  <td class="labels-head">
-	    Labels
+	    Positive Labels
 	  </td>
 	</th>
 	{% for longform, score, name, grounding, label in data %}
