@@ -25,8 +25,7 @@ def model_to_s3(model_name):
         client.upload_file(temp.name, S3_BUCKET, 's3_models.json')
 
     file_names = [f'{model_name}_{end}' for end in
-                  ('model.gz', 'grounding_dict.json', 'names.json',
-                   'pos_labels.json')]
+                  ('model.gz', 'grounding_dict.json', 'names.json')]
 
     for file_name in file_names:
         client.upload_file(os.path.join(local_models_path,
