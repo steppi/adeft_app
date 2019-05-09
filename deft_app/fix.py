@@ -177,7 +177,8 @@ def submit():
         with open(os.path.join(groundings_path, shortform,
                                f'{shortform}_names.json'), 'r') as f:
             temp = json.load(f)
-        names_dict[shortform] = {transition[label]: name
+        names_dict[shortform] = {transition[label]:
+                                 new_names[transition[label]]
                                  for label, name in temp.items()}
         labels = [transition[label] for label in grounding_map.values()
                   if label != 'ungrounded']
