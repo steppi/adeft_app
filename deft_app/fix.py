@@ -174,11 +174,10 @@ def submit():
             temp = json.load(f)
         names_dict[shortform] = {transition[label]: name
                                  for label, name in temp.items()}
-        with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_pos_labels.json'), 'r') as f:
-            temp = json.load(f)
-        pos_labels_dict[shortform] = [transition[label]
-                                      for label in pos_labels]
+        labels = [transition[label] for label in grounding_map.values()
+                  if label != 'ungrounded']
+        pos_labels_dict[shortform] = list(set(labels) &
+                                          set(new_pos_labels))
 
     if not check_names_consistency(names_dict.values()):
         logger.error('Inconsistent names for equivalent shortforms.')
@@ -187,7 +186,7 @@ def submit():
     all_pos_labels = sorted(pos_label for labels in pos_labels_dict.values()
                             for pos_label in labels)
 
-    if not all_pos_labels == pos_labels:
+    if not all_pos_labels == new_pos_labels:
         logger.error('positive labels have become out of sync for model'
                      ' and groundings files.')
         return redirect(url_for('main'))
