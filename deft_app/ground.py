@@ -117,7 +117,7 @@ def generate_grounding_map():
                            f'{shortform}_pos_labels.json'), 'w') as f:
         json.dump(pos_labels, f)
     session.clear()
-    return redirect(url_for('ground.main'))
+    return render_template('index.jinja2')
 
 
 def _init_with_trips(shortform, cutoff):
