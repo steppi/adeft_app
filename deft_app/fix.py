@@ -190,8 +190,8 @@ def submit():
         logger.error(message)
         return render_template('error.jinja2', message=message)
 
-    all_pos_labels = sorted(pos_label for labels in pos_labels_dict.values()
-                            for pos_label in labels)
+    all_pos_labels = set(pos_label for labels in pos_labels_dict.values()
+                         for pos_label in labels)
     if not all_pos_labels == set(new_pos_labels):
         message = ('positive labels have become out of sync in model'
                    ' and groundings files.')
