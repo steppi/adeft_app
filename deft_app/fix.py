@@ -168,8 +168,6 @@ def submit():
         logger.error(message)
         return render_template('error.jinja2', message=message)
 
-    _update_model_files(model_name, model, new_grounding_dict, new_names,
-                        new_pos_labels)
 
     # update groundings files created before training model
     groundings_path = os.path.join(DATA_PATH, 'groundings')
@@ -199,6 +197,8 @@ def submit():
         logger.error(message)
         return render_template('error.jinja2', message=message)
 
+    _update_model_files(model_name, model, new_grounding_dict, new_names,
+                        new_pos_labels)
 
     # update groundings files used for training model
     for shortform, grounding_map in new_grounding_dict.items():
