@@ -105,7 +105,8 @@ def change_grounding():
     return render_template('fix.jinja2', longforms=session['longforms'],
                            names=session['names'],
                            top_longforms=session['top_longforms'],
-                           labels=session['labels'])
+                           labels=session['labels'],
+                           pos_labels=session['pos_labels'])
 
 
 @bp.route('/fix_toggle_positive', methods=['POST'])
