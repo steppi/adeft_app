@@ -76,8 +76,8 @@ def change_grounding():
     for key in request.form:
         if key.startswith('s.'):
             index = key.partition('.')[-1]
-    new_name = request.form[f'new-name.{index}']
-    new_ground = request.form[f'new-ground.{index}']
+    new_name = request.form[f'new-name.{index}'].strip()
+    new_ground = request.form[f'new-ground.{index}'].strip()
     names = session['names']
     longforms = session['longforms']
     original_longforms = session['original_longforms']
@@ -95,15 +95,18 @@ def change_grounding():
         session['top_longforms'] = top_longforms
         session['longforms'], session['names'] = longforms, names
         labels = session['labels']
-        labels = [transition[label] for label in labels]
+        labels = [new_ground if label == old_ground else label
+                  for label in labels]
         pos_labels = session['pos_labels']
-        pos_labels = [transition[label] for label in pos_labels]
+        pos_labels = [new_ground if label == old_ground else label
+                      for label in pos_labels]
         session['labels'] = labels
         session['pos_labels'] = pos_labels
     return render_template('fix.jinja2', longforms=session['longforms'],
                            names=session['names'],
                            top_longforms=session['top_longforms'],
-                           labels=session['labels'])
+                           labels=session['labels'],
+                           pos_labels=session['pos_labels'])
 
 
 @bp.route('/fix_toggle_positive', methods=['POST'])
@@ -136,10 +139,11 @@ def submit():
                           in grounding_dict.items()}
 
     if not check_grounding_dict(new_grounding_dict):
-        logger.error('grounding dict has become inconsistent.\n'
-                     'This should not happen if the program is working'
-                     ' as expected.')
-        return redirect(url_for('main'))
+        message = ('grounding_dict has become inconsistent.\n'
+                   'This should not happen if the program is working'
+                   ' as expected.')
+        logger.error(message)
+        return render_template('error.jinja2', message=message)
 
     for index, label in enumerate(model.estimator.classes_):
         model.estimator.classes_[index] = transition[label]
@@ -148,48 +152,54 @@ def submit():
     new_names = session['names']
 
     # check consistency of newly generated files
-    if not check_consistency_grounding_dict_pos_labels(grounding_dict,
+    if not check_consistency_grounding_dict_pos_labels(new_grounding_dict,
                                                        new_pos_labels):
-        logger.error('pos labels exist that are not in grounding dict')
-        return redirect(url_for('main'))
+        message = 'pos labels exist that are not in grounding dict'
+        logger.error(message)
+        return render_template('error.jinja2', message=message)
 
-    if not check_consistency_names_grounding_dict(grounding_dict, new_names):
-        logger.error('names have become out of sync with grounding dict.')
-        return redirect(url_for('main'))
+    if not check_consistency_names_grounding_dict(new_grounding_dict, new_names):
+        message = 'names have become out of sync with grounding dict.'
+        logger.error(message)
+        return render_template('error.jinja2', message=message)
 
-    if not check_model_consistency(model, grounding_dict, new_pos_labels):
-        logger.error('Model state has become inconsistent.')
-        return redirect(url_for('main'))
+    if not check_model_consistency(model, new_grounding_dict, new_pos_labels):
+        message = 'Model state has become inconsistent'
+        logger.error(message)
+        return render_template('error.jinja2', message=message)
 
-    _update_model_files(model_name, model, new_grounding_dict, new_names,
-                        new_pos_labels)
 
     # update groundings files created before training model
     groundings_path = os.path.join(DATA_PATH, 'groundings')
     names_dict = {}
     pos_labels_dict = {}
-    for shortform, grounding_map in grounding_dict.items():
+    for shortform, grounding_map in new_grounding_dict.items():
         with open(os.path.join(groundings_path, shortform,
                                f'{shortform}_names.json'), 'r') as f:
             temp = json.load(f)
-        names_dict[shortform] = {transition[label]: name
+        names_dict[shortform] = {transition[label]:
+                                 new_names[transition[label]]
                                  for label, name in temp.items()}
-        labels = [transition[label] for label in grounding_map.values()
+        labels = [label for label in grounding_map.values()
                   if label != 'ungrounded']
         pos_labels_dict[shortform] = list(set(labels) &
                                           set(new_pos_labels))
 
     if not check_names_consistency(names_dict.values()):
-        logger.error('Inconsistent names for equivalent shortforms.')
-        return redirect(url_for('main'))
+        message = 'Inconsistent names for equivalent shortforms.'
+        logger.error(message)
+        return render_template('error.jinja2', message=message)
 
-    all_pos_labels = sorted(pos_label for labels in pos_labels_dict.values()
-                            for pos_label in labels)
+    all_pos_labels = set(pos_label for labels in pos_labels_dict.values()
+                         for pos_label in labels)
+    if not all_pos_labels == set(new_pos_labels):
+        message = ('positive labels have become out of sync in model'
+                   ' and groundings files.')
+        logger.error(message)
+        return render_template('error.jinja2', message=message)
 
-    if not all_pos_labels == new_pos_labels:
-        logger.error('positive labels have become out of sync for model'
-                     ' and groundings files.')
-        return redirect(url_for('main'))
+    _update_model_files(model_name, model, new_grounding_dict, new_names,
+                        new_pos_labels)
 
     # update groundings files used for training model
     for shortform, grounding_map in new_grounding_dict.items():

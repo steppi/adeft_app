@@ -40,8 +40,8 @@ def initialize():
 
 @bp.route('/ground_add', methods=['POST'])
 def add_groundings():
-    name = request.form['name']
-    grounding = request.form['grounding']
+    name = request.form['name'].strip()
+    grounding = request.form['grounding'].strip()
     names, groundings = session['names'], session['groundings']
     if name and grounding:
         selected = request.form.getlist('select')
@@ -117,7 +117,7 @@ def generate_grounding_map():
                            f'{shortform}_pos_labels.json'), 'w') as f:
         json.dump(pos_labels, f)
     session.clear()
-    return redirect(url_for('ground.main'))
+    return render_template('index.jinja2')
 
 
 def _init_with_trips(shortform, cutoff):
