@@ -36,10 +36,11 @@ if __name__ == '__main__':
             model_file = os.path.join(model_path, f'{model_name}_model.gz')
             model = load_model(model_file)
             model.pos_labels = [label.strip() for label in model.pos_labels]
-            
-            for i, label in \
-                enumerate(model.estimator.named_steps['logit'].classes_):
-                model.estimator.named_steps['logit'].classes_[i] = label.strip()
+
+            for i, label in (
+                    enumerate(model.estimator.named_steps['logit'].classes_)):
+                model.estimator.named_steps['logit'].classes_[i] = \
+                    label.strip()
 
             model.dump_model(model_file)
 
@@ -62,12 +63,8 @@ if __name__ == '__main__':
                 pos_labels_path = os.path.join(grounding_path,
                                                f'{shortform}_pos_labels.json')
                 with open(pos_labels_path, 'r') as f:
-                        pos_labels = json.load(f)
+                    pos_labels = json.load(f)
                 pos_labels = [label.strip() for label in pos_labels]
                 with open(pos_labels_path, 'w') as f:
                     json.dump(pos_labels_path, f)
             model_to_s3(model_name)
-                
-            
-                        
-                         
