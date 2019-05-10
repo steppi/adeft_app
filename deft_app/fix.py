@@ -152,18 +152,18 @@ def submit():
     new_names = session['names']
 
     # check consistency of newly generated files
-    if not check_consistency_grounding_dict_pos_labels(grounding_dict,
+    if not check_consistency_grounding_dict_pos_labels(new_grounding_dict,
                                                        new_pos_labels):
         message = 'pos labels exist that are not in grounding dict'
         logger.error(message)
         return render_template('error.jinja2', message=message)
 
-    if not check_consistency_names_grounding_dict(grounding_dict, new_names):
+    if not check_consistency_names_grounding_dict(new_grounding_dict, new_names):
         message = 'names have become out of sync with grounding dict.'
         logger.error(message)
         return render_template('error.jinja2', message=message)
 
-    if not check_model_consistency(model, grounding_dict, new_pos_labels):
+    if not check_model_consistency(model, new_grounding_dict, new_pos_labels):
         message = 'Model state has become inconsistent'
         logger.error(message)
         return render_template('error.jinja2', message=message)
@@ -173,14 +173,14 @@ def submit():
     groundings_path = os.path.join(DATA_PATH, 'groundings')
     names_dict = {}
     pos_labels_dict = {}
-    for shortform, grounding_map in grounding_dict.items():
+    for shortform, grounding_map in new_grounding_dict.items():
         with open(os.path.join(groundings_path, shortform,
                                f'{shortform}_names.json'), 'r') as f:
             temp = json.load(f)
         names_dict[shortform] = {transition[label]:
                                  new_names[transition[label]]
                                  for label, name in temp.items()}
-        labels = [transition[label] for label in grounding_map.values()
+        labels = [label for label in grounding_map.values()
                   if label != 'ungrounded']
         pos_labels_dict[shortform] = list(set(labels) &
                                           set(new_pos_labels))
