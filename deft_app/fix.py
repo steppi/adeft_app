@@ -58,6 +58,7 @@ def initialize():
 
     original_longforms = deepcopy(longforms)
     transition = {grounding: grounding for grounding, _ in longforms}
+    transition.update({label: label for label in pos_labels})
     transition['ungrounded'] = 'ungrounded'
     session['transition'] = transition
     session['model_name'] = model_name
@@ -152,22 +153,10 @@ def submit():
     new_names = session['names']
 
     # check consistency of newly generated files
-    if not check_consistency_grounding_dict_pos_labels(new_grounding_dict,
-                                                       new_pos_labels):
-        message = 'pos labels exist that are not in grounding dict'
-        logger.error(message)
-        return render_template('error.jinja2', message=message)
-
-    if not check_consistency_names_grounding_dict(new_grounding_dict, new_names):
-        message = 'names have become out of sync with grounding dict.'
-        logger.error(message)
-        return render_template('error.jinja2', message=message)
-
     if not check_model_consistency(model, new_grounding_dict, new_pos_labels):
         message = 'Model state has become inconsistent'
         logger.error(message)
         return render_template('error.jinja2', message=message)
-
 
     # update groundings files created before training model
     groundings_path = os.path.join(DATA_PATH, 'groundings')
@@ -187,14 +176,6 @@ def submit():
 
     if not check_names_consistency(names_dict.values()):
         message = 'Inconsistent names for equivalent shortforms.'
-        logger.error(message)
-        return render_template('error.jinja2', message=message)
-
-    all_pos_labels = set(pos_label for labels in pos_labels_dict.values()
-                         for pos_label in labels)
-    if not all_pos_labels == set(new_pos_labels):
-        message = ('positive labels have become out of sync in model'
-                   ' and groundings files.')
         logger.error(message)
         return render_template('error.jinja2', message=message)
 

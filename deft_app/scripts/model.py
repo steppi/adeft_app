@@ -76,10 +76,6 @@ def train(shortforms, additional=None, n_jobs=1):
             pos_labels.append(grounding)
 
     pos_labels = sorted(set(pos_labels))
-    if not check_consistency_grounding_dict_pos_labels(grounding_dict,
-                                                       pos_labels):
-        raise RuntimeError('Positive labels exist that are not in'
-                           ' grounding dict.')
 
     train, labels = zip(*corpus)
     deft_cl = DeftClassifier(shortforms, pos_labels)

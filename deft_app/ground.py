@@ -2,9 +2,7 @@ import os
 import json
 import logging
 
-from flask import (
-    Blueprint, request, render_template, session, url_for, redirect
-    )
+from flask import Blueprint, request, render_template, session
 
 
 from .trips import trips_ground
