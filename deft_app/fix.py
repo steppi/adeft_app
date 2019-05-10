@@ -153,13 +153,8 @@ def submit():
     new_names = session['names']
 
     # check consistency of newly generated files
-    if not check_consistency_grounding_dict_pos_labels(new_grounding_dict,
-                                                       new_pos_labels):
-        message = 'pos labels exist that are not in grounding dict'
-        logger.error(message)
-        return render_template('error.jinja2', message=message)
-
-    if not check_consistency_names_grounding_dict(new_grounding_dict, new_names):
+    if not check_consistency_names_grounding_dict(new_grounding_dict,
+                                                  new_names):
         message = 'names have become out of sync with grounding dict.'
         logger.error(message)
         return render_template('error.jinja2', message=message)
