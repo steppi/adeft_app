@@ -2,10 +2,13 @@ import os
 import sys
 import json
 
-from deft_app.locations import DATA_PATH
 
 from deft import available_shortforms
 from deft.modeling.classify import load_model
+
+from deft_app.locations import DATA_PATH
+from deft_app.scripts.model_to_s3 import model_to_s3
+
 
 def strip_dictionary(d):
     return {a.strip(): b.strip() for a, b in d.items()}
@@ -59,15 +62,12 @@ if __name__ == '__main__':
                 pos_labels_path = os.path.join(grounding_path,
                                                f'{shortform}_pos_labels.json')
                 with open(pos_labels_path, 'r') as f:
-                    try:
                         pos_labels = json.load(f)
-                    except Exception:
-                        print('*****')
-                        print(pos_labels_path)
-                        print(grounding_map)
                 pos_labels = [label.strip() for label in pos_labels]
                 with open(pos_labels_path, 'w') as f:
                     json.dump(pos_labels_path, f)
+            model_to_s3(model_name)
+                
             
                         
                          
