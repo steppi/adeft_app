@@ -164,7 +164,6 @@ def submit():
         logger.error(message)
         return render_template('error.jinja2', message=message)
 
-
     # update groundings files created before training model
     groundings_path = os.path.join(DATA_PATH, 'groundings')
     names_dict = {}
@@ -183,14 +182,6 @@ def submit():
 
     if not check_names_consistency(names_dict.values()):
         message = 'Inconsistent names for equivalent shortforms.'
-        logger.error(message)
-        return render_template('error.jinja2', message=message)
-
-    all_pos_labels = set(pos_label for labels in pos_labels_dict.values()
-                         for pos_label in labels)
-    if not all_pos_labels == set(new_pos_labels):
-        message = ('positive labels have become out of sync in model'
-                   ' and groundings files.')
         logger.error(message)
         return render_template('error.jinja2', message=message)
 
