@@ -58,6 +58,7 @@ def initialize():
 
     original_longforms = deepcopy(longforms)
     transition = {grounding: grounding for grounding, _ in longforms}
+    transition.update({label: label for label in pos_labels})
     transition['ungrounded'] = 'ungrounded'
     session['transition'] = transition
     session['model_name'] = model_name
