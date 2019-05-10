@@ -32,7 +32,7 @@ def check_model_consistency(model, grounding_dict, pos_labels):
     groundings = {grounding for grounding_map in grounding_dict.values()
                   for grounding in grounding_map.values()}
     model_labels = set(model.estimator.named_steps['logit'].classes_)
-    consistent_labels = groundings == model_labels
+    consistent_labels = groundings <= model_labels
 
     shortforms = set(grounding_dict.keys())
     model_shortforms = set(model.shortforms)
