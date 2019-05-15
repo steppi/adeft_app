@@ -17,7 +17,8 @@ def _trips_ground(text):
     agents = tp.get_agents()
     proper_agents = [agent for agent in agents if
                      'TEXT' in agent.db_refs
-                     and agent.db_refs['TEXT'] == text.lower()]
+                     and agent.db_refs['TEXT'].lower() ==
+                     text.lower()]
     if proper_agents:
         agent = proper_agents[0]
     else:
