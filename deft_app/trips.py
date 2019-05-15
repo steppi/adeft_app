@@ -44,6 +44,8 @@ def _trips_ground(text):
         grounding = chebi_id
     elif mesh_id is not None:
         grounding = 'MESH:' + mesh_id
+    elif up_id is not None:
+        grounding = 'UP:' + up_id
     else:
         grounding = None
 
