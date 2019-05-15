@@ -9,27 +9,45 @@ trips_cache = os.path.join('.cache')
 memory = Memory(trips_cache, verbose=0)
 
 
-def trips_ground(text):
-    name = grounding = None
+def _trips_ground(text):
     try:
-        tp = trips.process_text(text, service_endpoint='drum')
-        terms = tp.tree.findall('TERM')
-        if terms:
-            term_id = terms[0].attrib['id']
-            agent = tp._get_agent_by_id(term_id, None)
-            if 'HGNC' in agent.db_refs:
-                dbn = 'HGNC'
-                dbi = agent.db_refs['HGNC']
-                name = hgnc_client.get_hgnc_name(dbi)
-                grounding = f'{dbn}:{dbi}'
-            elif 'FPLX' in agent.db_refs:
-                dbn = 'FPLX'
-                dbi = agent.db_refs['FPLX']
-                name = dbi
-                grounding = f'{dbn}:{dbi}'
+        tp = trips.process_text(text, service_endpoint='drum-dev')
     except Exception:
-        pass
+        return None, None
+    agents = tp.get_agents()
+    proper_agents = [agent for agent in agents if
+                     'TEXT' in agent.db_refs
+                     and agent.db_refs['TEXT'] == text.lower()]
+    if proper_agents:
+        agent = proper_agents[0]
+    else:
+        return None, None
+
+    name = agent.name
+
+    hgnc_id = agent.db_refs.get('HGNC')
+    fplx_id = agent.db_refs.get('FPLX')
+    up_id = agent.db_refs.get('UP')
+    mesh_id = agent.db_refs.get('MESH')
+    chebi_id = agent.db_refs.get('CHEBI')
+    go_id = agent.db_refs.get('GO')
+
+    if hgnc_id is not None:
+        grounding = 'HGNC:' + hgnc_id
+    elif fplx_id is not None:
+        grounding = 'FPLX:' + fplx_id
+    elif up_id is not None and not up_id.startswith('SL-'):
+        grounding = 'UP:' + up_id
+    elif go_id is not None:
+        grounding = 'GO:' + go_id
+    elif chebi_id is not None:
+        grounding = chebi_id
+    elif mesh_id is not None:
+        grounding = 'MESH:' + mesh_id
+    else:
+        grounding = None
+
     return name, grounding
 
 
-trips_ground = memory.cache(trips_ground)
+trips_ground = memory.cache(_trips_ground)
