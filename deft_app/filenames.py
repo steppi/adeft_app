@@ -35,3 +35,25 @@ def escape_filename(filename):
     escape character. It is also an escape character for itself.
     """
     return ''.join([_escape(char) for char in filename])
+
+
+def unescape_filename(filename):
+    """Inverse of escape_filename"""
+    unescape_map = {value: key for key, value in _escape_map.items()}
+    escape = False
+    output = []
+    for char in filename:
+        if escape:
+            if char in unescape_map:
+                output.append(unescape_map[char])
+            else:
+                output.append(char.lower())
+            escape = False
+        elif char == '_':
+            escape = True
+        elif char in _escape_map:
+            raise ValueError(f'Filename {filename} contains invalid'
+                             ' characters')
+        else:
+            output.append(char)
+    return ''.join(output)
