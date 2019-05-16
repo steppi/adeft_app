@@ -31,10 +31,7 @@ def _trips_ground(text):
         Grounding of the form <name_space>:<id> as contained in an
         Indra agent's db_refs
     """
-    try:
-        tp = trips.process_text(text, service_endpoint='drum-dev')
-    except Exception:
-        return None, None
+    tp = trips.process_text(text, service_endpoint='drum-dev')
     agents = tp.get_agents()
     # filter to agents with text matching input text
     matching_agents = [agent for agent in agents if
