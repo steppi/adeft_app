@@ -5,26 +5,33 @@ which is broken in a case insensitive file system.
 """
 
 
+_escape_map = {'/': '0',
+               '\\': '1',
+               '?': '2',
+               '%': '3',
+               '*': '4',
+               ':': '5',
+               '|': '6',
+               '"': '7',
+               '<': '8',
+               '>': '9',
+               '.': ',',
+               '_': '_'}
+
+
+def _escape(char):
+    if char in _escape_map:
+        return '_' + _escape_map[char]
+    elif char.islower():
+        return '_' + char.upper()
+    else:
+        return char
+
+
 def escape_lower_case(file_name):
     """Convert filename for one with escape character before lowercase
 
     This is done to handle case insensitive file systems. _ is used as an
     escape character. It is also an escape character for itself.
     """
-    return ''.join(['_' + char.upper() if char.islower()
-                    or char == '_' else char for char in file_name])
-
-
-def unescape_lower_case(file_name):
-    """Inverse of previous function."""
-    underscore = False
-    output = []
-    for char in file_name:
-        if underscore:
-            output.append(char.lower())
-            underscore = False
-        elif char == '_':
-            underscore = True
-        else:
-            output.append(char)
-    return ''.join(output)
+    return ''.join([_escape(char) for char in file_name])
