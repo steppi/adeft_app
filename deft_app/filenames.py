@@ -28,10 +28,10 @@ def _escape(char):
         return char
 
 
-def escape_lower_case(file_name):
+def escape_filename(filename):
     """Convert filename for one with escape character before lowercase
 
     This is done to handle case insensitive file systems. _ is used as an
     escape character. It is also an escape character for itself.
     """
-    return ''.join([_escape(char) for char in file_name])
+    return ''.join([_escape(char) for char in filename])
