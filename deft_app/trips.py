@@ -37,12 +37,12 @@ def _trips_ground(text):
         return None, None
     agents = tp.get_agents()
     # filter to agents with text matching input text
-    proper_agents = [agent for agent in agents if
-                     'TEXT' in agent.db_refs
-                     and agent.db_refs['TEXT'].lower() ==
-                     text.lower()]
-    if proper_agents:
-        agent = proper_agents[0]
+    matching_agents = [agent for agent in agents if
+                       'TEXT' in agent.db_refs
+                       and agent.db_refs['TEXT'].lower() ==
+                       text.lower()]
+    if matching_agents:
+        agent = matching_agents[0]
     else:
         return None, None
 
