@@ -16,10 +16,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
     shortforms = args.vars
     all_stmts = set()
-    cased_shortforms = []
+    cased_shortforms = [escape_lower_case(shortform) for shortform in
+                        sorted(shortforms)]
     for shortform in shortforms:
         cased_shortform = escape_lower_case(shortform)
-        cased_shortforms.append(cased_shortform)
         path = os.path.join(DATA_PATH, 'statements',
                             f'{cased_shortform}_statements.json')
         with open(path, 'r') as f:
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     text_dict = {text_ref: universal_extract_text(article,
                                                   contains=shortforms)
                  for text_ref, article in text_dict.items()}
-    agg_name = ':'.join(sorted(cased_shortforms))
+    agg_name = ':'.join(cased_shortforms)
     dir_path = os.path.join(DATA_PATH, 'texts', agg_name)
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
