@@ -9,7 +9,7 @@ trips_cache = os.path.join('.cache')
 memory = Memory(trips_cache, verbose=0)
 
 
-def _trips_ground(text):
+def _trips_ground(agent_text):
     """Attempt to ground an agent text with trips
 
     Searches text for trips groundings. For a grounding to be returned
@@ -31,13 +31,13 @@ def _trips_ground(text):
         Grounding of the form <name_space>:<id> as contained in an
         Indra agent's db_refs
     """
-    tp = trips.process_text(text, service_endpoint='drum-dev')
+    tp = trips.process_text(agent_text, service_endpoint='drum-dev')
     agents = tp.get_agents()
     # filter to agents with text matching input text
     matching_agents = [agent for agent in agents if
                        'TEXT' in agent.db_refs
                        and agent.db_refs['TEXT'].lower() ==
-                       text.lower()]
+                       agent_text.lower()]
     if matching_agents:
         agent = matching_agents[0]
     else:
@@ -73,4 +73,37 @@ def _trips_ground(text):
     return name, grounding
 
 
-trips_ground = memory.cache(_trips_ground)
+_trips_ground_cached = memory.cache(_trips_ground)
+
+
+def trips_ground(agent_text, cached=False):
+    """Attempt to ground an agent text with trips
+
+    Searches text for trips groundings. For a grounding to be returned
+    the text for any extracted agent must match the input text in a case
+    insensitive way. A priority is given for different namespaces.
+    HGNC > FPLX > UP (not cellular location) > GO > CHEBI > MESH >
+    UP (cellular location). Only these name spaces are considered.
+
+    Parameters
+    ----------
+    text : str
+        An agent text
+
+    cached : Optional[bool]
+        If True, use memoized function. Results are cached to file.
+        Default: False
+
+    Returns
+    -------
+    name : str
+        Agent name if a trips grounding was found, otherwise None
+    grounding : str
+        Grounding of the form <name_space>:<id> as contained in an
+        Indra agent's db_refs
+    """
+    if cached:
+        output = _trips_ground_cached(agent_text)
+    else:
+        output = _trips_ground(agent_text)
+    return output
