@@ -4,17 +4,14 @@ import logging
 from copy import deepcopy
 from collections import defaultdict
 
-from flask import (
-    Blueprint, request, render_template, session, url_for, redirect
-    )
+from flask import Blueprint, request, render_template, session
 
 from deft.modeling.classify import load_model
 
 from .locations import DATA_PATH
+from .filenames import escape_lower_case
 from .scripts.consistency import (check_grounding_dict,
                                   check_model_consistency,
-                                  check_consistency_grounding_dict_pos_labels,
-                                  check_consistency_names_grounding_dict,
                                   check_names_consistency)
 
 
@@ -28,6 +25,7 @@ def initialize():
     model_name = request.form['modelname']
     if not model_name:
         return render_template('index.jinja2')
+    model_name = escape_lower_case(model_name)
     models_path = os.path.join(DATA_PATH, 'models', model_name)
     with open(os.path.join(models_path,
                            model_name + '_grounding_dict.json')) as f:
@@ -37,8 +35,9 @@ def initialize():
     longforms = defaultdict(list)
     longform_scores = defaultdict(int)
     for shortform, grounding_map in grounding_dict.items():
+        cased_shortform = escape_lower_case(shortform)
         with open(os.path.join(DATA_PATH, 'longforms',
-                               f'{shortform}_longforms.json'), 'r') as f:
+                               f'{cased_shortform}_longforms.json'), 'r') as f:
             lf_scores = json.load(f)
             for lf, score in lf_scores:
                 longform_scores[lf] += score
@@ -163,8 +162,9 @@ def submit():
     names_dict = {}
     pos_labels_dict = {}
     for shortform, grounding_map in new_grounding_dict.items():
+        cased_shortform = escape_lower_case(shortform)
         with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_names.json'), 'r') as f:
+                               f'{cased_shortform}_names.json'), 'r') as f:
             temp = json.load(f)
         names_dict[shortform] = {transition[label]:
                                  new_names[transition[label]]
@@ -184,14 +184,18 @@ def submit():
 
     # update groundings files used for training model
     for shortform, grounding_map in new_grounding_dict.items():
+        cased_shortform = escape_lower_case(shortform)
         with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_grounding_map.json'), 'w') as f:
+                               f'{cased_shortform}_grounding_map.json'),
+                  'w') as f:
             json.dump(grounding_map, f)
         with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_names.json'), 'w') as f:
+                               f'{cased_shortform}_names.json'),
+                  'w') as f:
             json.dump(names_dict[shortform], f)
         with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_pos_labels.json'), 'w') as f:
+                               f'{cased_shortform}_pos_labels.json'),
+                  'w') as f:
             json.dump(pos_labels_dict[shortform], f)
     session.clear()
     return render_template('index.jinja2')
