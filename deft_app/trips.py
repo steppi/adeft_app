@@ -1,9 +1,7 @@
 import os
 from joblib import Memory
-from flask import current_app
 
 from indra.sources import trips
-from indra.databases import hgnc_client
 
 trips_cache = os.path.join('.cache')
 memory = Memory(trips_cache, verbose=0)
