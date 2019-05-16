@@ -7,7 +7,7 @@ import argparse
 from indra_db.util.content_scripts import get_stmts_with_agent_text_like
 
 from deft_app.locations import DATA_PATH
-from deft_app.file_names import escape_lower_case
+from deft_app.filenames import escape_lower_case
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Get statements with agent'

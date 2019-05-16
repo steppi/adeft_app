@@ -5,7 +5,7 @@ import argparse
 from deft.discover import DeftMiner
 
 from deft_app.locations import DATA_PATH
-from deft_app.file_names import escape_lower_case
+from deft_app.filenames import escape_lower_case
 
 
 if __name__ == '__main__':
