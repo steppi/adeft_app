@@ -7,7 +7,7 @@ import argparse
 from indra_db.util.content_scripts import get_stmts_with_agent_text_like
 
 from deft_app.locations import DATA_PATH
-from deft_app.filenames import escape_lower_case
+from deft_app.filenames import escape_filename
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Get statements with agent'
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     stmt_dict = get_stmts_with_agent_text_like(pattern,
                                                filter_genes=True)
     for shortform, stmts in stmt_dict.items():
-        cased_shortform = escape_lower_case(shortform)
+        cased_shortform = escape_filename(shortform)
         if re.match(keep, shortform):
             with open(os.path.join(DATA_PATH,
                                    'statements',

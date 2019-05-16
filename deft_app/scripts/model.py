@@ -12,7 +12,7 @@ from deft.modeling.classify import DeftClassifier
 from deft.modeling.corpora import DeftCorpusBuilder
 
 from deft_app.locations import DATA_PATH
-from deft_app.filenames import escape_lower_case
+from deft_app.filenames import escape_filename
 from deft_app.scripts.consistency import check_grounding_dict, \
     check_consistency_grounding_dict_pos_labels
 
@@ -46,7 +46,7 @@ def train(shortforms, additional=None, n_jobs=1):
         raise RuntimeError('Inconsistent grounding maps for shortforms.')
     pos_labels = sorted(pos_labels)
 
-    cased_shortforms = [escape_lower_case(shortform)
+    cased_shortforms = [escape_filename(shortform)
                         for shortform in sorted(shortforms)]
 
     # model name is built up from shortforms in model

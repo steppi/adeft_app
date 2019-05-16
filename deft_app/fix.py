@@ -9,7 +9,7 @@ from flask import Blueprint, request, render_template, session
 from deft.modeling.classify import load_model
 
 from .locations import DATA_PATH
-from .filenames import escape_lower_case
+from .filenames import escape_filename
 from .scripts.consistency import (check_grounding_dict,
                                   check_model_consistency,
                                   check_names_consistency)
@@ -25,7 +25,7 @@ def initialize():
     model_name = request.form['modelname']
     if not model_name:
         return render_template('index.jinja2')
-    model_name = escape_lower_case(model_name)
+    model_name = escape_filename(model_name)
     models_path = os.path.join(DATA_PATH, 'models', model_name)
     with open(os.path.join(models_path,
                            model_name + '_grounding_dict.json')) as f:
@@ -35,7 +35,7 @@ def initialize():
     longforms = defaultdict(list)
     longform_scores = defaultdict(int)
     for shortform, grounding_map in grounding_dict.items():
-        cased_shortform = escape_lower_case(shortform)
+        cased_shortform = escape_filename(shortform)
         with open(os.path.join(DATA_PATH, 'longforms',
                                f'{cased_shortform}_longforms.json'), 'r') as f:
             lf_scores = json.load(f)
@@ -162,7 +162,7 @@ def submit():
     names_dict = {}
     pos_labels_dict = {}
     for shortform, grounding_map in new_grounding_dict.items():
-        cased_shortform = escape_lower_case(shortform)
+        cased_shortform = escape_filename(shortform)
         with open(os.path.join(groundings_path, shortform,
                                f'{cased_shortform}_names.json'), 'r') as f:
             temp = json.load(f)
@@ -184,7 +184,7 @@ def submit():
 
     # update groundings files used for training model
     for shortform, grounding_map in new_grounding_dict.items():
-        cased_shortform = escape_lower_case(shortform)
+        cased_shortform = escape_filename(shortform)
         with open(os.path.join(groundings_path, shortform,
                                f'{cased_shortform}_grounding_map.json'),
                   'w') as f:

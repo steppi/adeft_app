@@ -6,7 +6,7 @@ from indra.literature.deft_tools import universal_extract_text
 from indra_db.util.content_scripts import get_text_content_from_stmt_ids
 
 from deft_app.locations import DATA_PATH
-from deft_app.filenames import escape_lower_case
+from deft_app.filenames import escape_filename
 
 
 if __name__ == '__main__':
@@ -16,10 +16,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
     shortforms = args.vars
     all_stmts = set()
-    cased_shortforms = [escape_lower_case(shortform) for shortform in
+    cased_shortforms = [escape_filename(shortform) for shortform in
                         sorted(shortforms)]
     for shortform in shortforms:
-        cased_shortform = escape_lower_case(shortform)
+        cased_shortform = escape_filename(shortform)
         path = os.path.join(DATA_PATH, 'statements',
                             f'{cased_shortform}_statements.json')
         with open(path, 'r') as f:

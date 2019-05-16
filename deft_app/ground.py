@@ -7,7 +7,7 @@ from flask import Blueprint, request, render_template, session
 
 from .trips import trips_ground
 from .locations import DATA_PATH
-from .filenames import escape_lower_case
+from .filenames import escape_filename
 
 logger = logging.getLogger(__file__)
 
@@ -101,7 +101,7 @@ def generate_grounding_map():
                                                             names)
                  if grounding and name}
     groundings_path = os.path.join(DATA_PATH, 'groundings', shortform)
-    cased_shortform = escape_lower_case(shortform)
+    cased_shortform = escape_filename(shortform)
     try:
         os.mkdir(groundings_path)
     except FileExistsError:
@@ -137,7 +137,7 @@ def _init_with_trips(shortform, cutoff):
 def _init_from_file(shortform):
     longforms, scores = _load(shortform, 0)
     groundings_path = os.path.join(DATA_PATH, 'groundings', shortform)
-    cased_shortform = escape_lower_case(shortform)
+    cased_shortform = escape_filename(shortform)
     try:
         with open(os.path.join(groundings_path,
                                f'{cased_shortform}_grounding_map.json'),
@@ -162,7 +162,7 @@ def _init_from_file(shortform):
 
 
 def _load(shortform, cutoff):
-    cased_shortform = escape_lower_case(shortform)
+    cased_shortform = escape_filename(shortform)
     longforms_path = os.path.join(DATA_PATH, 'longforms',
                                   f'{cased_shortform}_longforms.json')
     try:

@@ -5,7 +5,7 @@ import argparse
 from deft.discover import DeftMiner
 
 from deft_app.locations import DATA_PATH
-from deft_app.filenames import escape_lower_case
+from deft_app.filenames import escape_filename
 
 
 if __name__ == '__main__':
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     parser.add_argument('vars', nargs='*')
     args = parser.parse_args()
     shortforms = args.vars
-    agg_name = ':'.join(sorted([escape_lower_case(shortform)
+    agg_name = ':'.join(sorted([escape_filename(shortform)
                                 for shortform in shortforms]))
     texts_path = os.path.join(DATA_PATH, 'texts', agg_name,
                               f'{agg_name}_texts.json')
@@ -26,7 +26,7 @@ if __name__ == '__main__':
         dm = DeftMiner(shortform)
         dm.process_texts(texts)
         longforms = dm.get_longforms()
-        escaped_shortform = escape_lower_case(shortform)
+        escaped_shortform = escape_filename(shortform)
         out_path = os.path.join(DATA_PATH, 'longforms',
                                 f'{escaped_shortform}_longforms.json')
         with open(out_path, 'w') as f:
