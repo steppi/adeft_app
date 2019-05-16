@@ -120,7 +120,8 @@ def generate_grounding_map():
 
 def _init_with_trips(shortform, cutoff):
     longforms, scores = _load(shortform, cutoff)
-    trips_groundings = [trips_ground(longform) for longform in longforms]
+    trips_groundings = [trips_ground(longform, cached=True)
+                        for longform in longforms]
     names, groundings = zip(*trips_groundings)
     names = [name if name is not None else '' for name in names]
     groundings = [grounding if grounding is not None
