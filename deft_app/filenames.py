@@ -4,25 +4,14 @@ The Deft app design involves using filenames as keys in an implicit database,
 which is broken in a case insensitive file system.
 """
 
-
-_escape_map = {'/': '0',
-               '\\': '1',
-               '?': '2',
-               '%': '3',
-               '*': '4',
-               ':': '5',
-               '|': '6',
-               '"': '7',
-               '<': '8',
-               '>': '9',
-               '.': ',',
-               '_': '_'}
+_escape_map = {'_': '_',
+               '/': 's'}
 
 
 def _escape(char):
     if char in _escape_map:
         return '_' + _escape_map[char]
-    elif char.islower():
+    if char.islower():
         return '_' + char.upper()
     else:
         return char
