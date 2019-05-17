@@ -25,7 +25,7 @@ if __name__ == '__main__':
                                                filter_genes=True)
     for shortform, stmts in stmt_dict.items():
         if (shortform[0] in ['-', '.'] or
-                set(shortform) & set('*/:\\')):
+                set(shortform) & set(': ')):
             continue
         cased_shortform = escape_filename(shortform)
         if re.match(keep, shortform):
