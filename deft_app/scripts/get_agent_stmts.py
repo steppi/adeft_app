@@ -24,6 +24,9 @@ if __name__ == '__main__':
     stmt_dict = get_stmts_with_agent_text_like(pattern,
                                                filter_genes=True)
     for shortform, stmts in stmt_dict.items():
+        if (shortform[0] in ['-', '.'] or
+                set(shortform) & set('*/:\\')):
+            continue
         cased_shortform = escape_filename(shortform)
         if re.match(keep, shortform):
             with open(os.path.join(DATA_PATH,
