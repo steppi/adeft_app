@@ -31,15 +31,18 @@ def train(shortforms, additional=None, n_jobs=1):
     pos_labels = set()
     # combine grounding maps and names from multiple shortforms into one model
     for shortform in shortforms:
-        with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_grounding_map.json'), 'r') as f:
+        cased_shortform = escape_filename(shortform)
+        with open(os.path.join(groundings_path, cased_shortform,
+                               f'{cased_shortform}_grounding_map.json'),
+                  'r') as f:
             grounding_map = json.load(f)
             grounding_dict[shortform] = grounding_map
-        with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_names.json'), 'r') as f:
+        with open(os.path.join(groundings_path, cased_shortform,
+                               f'{cased_shortform}_names.json'), 'r') as f:
             names.update(json.load(f))
-        with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_pos_labels.json'), 'r') as f:
+        with open(os.path.join(groundings_path, cased_shortform,
+                               f'{cased_shortform}_pos_labels.json'),
+                  'r') as f:
             pos_labels.update(json.load(f))
 
     if not check_grounding_dict(grounding_dict):
