@@ -100,8 +100,8 @@ def generate_grounding_map():
     names_map = {grounding: name for grounding, name in zip(groundings,
                                                             names)
                  if grounding and name}
-    groundings_path = os.path.join(DATA_PATH, 'groundings', shortform)
     cased_shortform = escape_filename(shortform)
+    groundings_path = os.path.join(DATA_PATH, 'groundings', cased_shortform)
     try:
         os.mkdir(groundings_path)
     except FileExistsError:
