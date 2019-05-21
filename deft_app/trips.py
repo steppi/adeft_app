@@ -60,7 +60,7 @@ def _trips_ground(agent_text):
     elif go_id is not None:
         grounding = 'GO:' + go_id
     elif chebi_id is not None:
-        grounding = chebi_id
+        grounding = 'CHEBI:' + chebi_id
     elif mesh_id is not None:
         grounding = 'MESH:' + mesh_id
     elif up_id is not None:
