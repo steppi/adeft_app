@@ -163,7 +163,7 @@ def submit():
     pos_labels_dict = {}
     for shortform, grounding_map in new_grounding_dict.items():
         cased_shortform = escape_filename(shortform)
-        with open(os.path.join(groundings_path, shortform,
+        with open(os.path.join(groundings_path, cased_shortform,
                                f'{cased_shortform}_names.json'), 'r') as f:
             temp = json.load(f)
         names_dict[shortform] = {transition[label]:
@@ -185,15 +185,15 @@ def submit():
     # update groundings files used for training model
     for shortform, grounding_map in new_grounding_dict.items():
         cased_shortform = escape_filename(shortform)
-        with open(os.path.join(groundings_path, shortform,
+        with open(os.path.join(groundings_path, cased_shortform,
                                f'{cased_shortform}_grounding_map.json'),
                   'w') as f:
             json.dump(grounding_map, f)
-        with open(os.path.join(groundings_path, shortform,
+        with open(os.path.join(groundings_path, cased_shortform,
                                f'{cased_shortform}_names.json'),
                   'w') as f:
             json.dump(names_dict[shortform], f)
-        with open(os.path.join(groundings_path, shortform,
+        with open(os.path.join(groundings_path, cased_shortform,
                                f'{cased_shortform}_pos_labels.json'),
                   'w') as f:
             json.dump(pos_labels_dict[shortform], f)
