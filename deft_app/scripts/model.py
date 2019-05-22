@@ -12,6 +12,7 @@ from deft.modeling.classify import DeftClassifier
 from deft.modeling.corpora import DeftCorpusBuilder
 
 from deft_app.locations import DATA_PATH
+from deft_app.filenames import escape_filename
 from deft_app.scripts.consistency import check_grounding_dict, \
     check_consistency_grounding_dict_pos_labels
 
@@ -30,24 +31,30 @@ def train(shortforms, additional=None, n_jobs=1):
     pos_labels = set()
     # combine grounding maps and names from multiple shortforms into one model
     for shortform in shortforms:
-        with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_grounding_map.json'), 'r') as f:
+        cased_shortform = escape_filename(shortform)
+        with open(os.path.join(groundings_path, cased_shortform,
+                               f'{cased_shortform}_grounding_map.json'),
+                  'r') as f:
             grounding_map = json.load(f)
             grounding_dict[shortform] = grounding_map
-        with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_names.json'), 'r') as f:
+        with open(os.path.join(groundings_path, cased_shortform,
+                               f'{cased_shortform}_names.json'), 'r') as f:
             names.update(json.load(f))
-        with open(os.path.join(groundings_path, shortform,
-                               f'{shortform}_pos_labels.json'), 'r') as f:
+        with open(os.path.join(groundings_path, cased_shortform,
+                               f'{cased_shortform}_pos_labels.json'),
+                  'r') as f:
             pos_labels.update(json.load(f))
 
     if not check_grounding_dict(grounding_dict):
         raise RuntimeError('Inconsistent grounding maps for shortforms.')
     pos_labels = sorted(pos_labels)
 
+    cased_shortforms = [escape_filename(shortform)
+                        for shortform in sorted(shortforms)]
+
     # model name is built up from shortforms in model
     # (most models only have one shortform)
-    agg_name = ':'.join(sorted(shortforms))
+    agg_name = ':'.join(cased_shortforms)
     with open(os.path.join(texts_path, agg_name,
                            f'{agg_name}_texts.json'), 'r') as f:
         text_dict = json.load(f)

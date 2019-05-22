@@ -7,9 +7,11 @@ import tempfile
 from deft.download import get_s3_models
 
 from deft_app.locations import DATA_PATH, S3_BUCKET
+from deft_app.filenames import escape_filename
 
 
 def model_to_s3(model_name):
+    model_name = escape_filename(model_name)
     local_models_path = os.path.join(DATA_PATH, 'models', model_name)
     with open(os.path.join(local_models_path,
                            f'{model_name}_grounding_dict.json')) as f:

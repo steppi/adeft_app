@@ -7,7 +7,7 @@ from flask import Blueprint, request, render_template, session
 
 from .trips import trips_ground
 from .locations import DATA_PATH
-
+from .filenames import escape_filename
 
 logger = logging.getLogger(__file__)
 
@@ -100,19 +100,20 @@ def generate_grounding_map():
     names_map = {grounding: name for grounding, name in zip(groundings,
                                                             names)
                  if grounding and name}
-    groundings_path = os.path.join(DATA_PATH, 'groundings', shortform)
+    cased_shortform = escape_filename(shortform)
+    groundings_path = os.path.join(DATA_PATH, 'groundings', cased_shortform)
     try:
         os.mkdir(groundings_path)
     except FileExistsError:
         pass
     with open(os.path.join(groundings_path,
-                           f'{shortform}_grounding_map.json'), 'w') as f:
+                           f'{cased_shortform}_grounding_map.json'), 'w') as f:
         json.dump(grounding_map, f)
     with open(os.path.join(groundings_path,
-                           f'{shortform}_names.json'), 'w') as f:
+                           f'{cased_shortform}_names.json'), 'w') as f:
         json.dump(names_map, f)
     with open(os.path.join(groundings_path,
-                           f'{shortform}_pos_labels.json'), 'w') as f:
+                           f'{cased_shortform}_pos_labels.json'), 'w') as f:
         json.dump(pos_labels, f)
     session.clear()
     return render_template('index.jinja2')
@@ -136,15 +137,18 @@ def _init_with_trips(shortform, cutoff):
 def _init_from_file(shortform):
     longforms, scores = _load(shortform, 0)
     groundings_path = os.path.join(DATA_PATH, 'groundings', shortform)
+    cased_shortform = escape_filename(shortform)
     try:
         with open(os.path.join(groundings_path,
-                               f'{shortform}_grounding_map.json'), 'r') as f:
+                               f'{cased_shortform}_grounding_map.json'),
+                  'r') as f:
             grounding_map = json.load(f)
         with open(os.path.join(groundings_path,
-                               f'{shortform}_names.json'), 'r') as f:
+                               f'{cased_shortform}_names.json'), 'r') as f:
             names = json.load(f)
         with open(os.path.join(groundings_path,
-                               f'{shortform}_pos_labels.json'), 'r') as f:
+                               f'{cased_shortform}_pos_labels.json'),
+                  'r') as f:
             pos_labels = json.load(f)
     except EnvironmentError:
         raise ValueError
@@ -158,8 +162,9 @@ def _init_from_file(shortform):
 
 
 def _load(shortform, cutoff):
+    cased_shortform = escape_filename(shortform)
     longforms_path = os.path.join(DATA_PATH, 'longforms',
-                                  f'{shortform}_longforms.json')
+                                  f'{cased_shortform}_longforms.json')
     try:
         with open(longforms_path, 'r') as f:
             scored_longforms = json.load(f)
