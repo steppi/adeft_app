@@ -41,8 +41,6 @@ def _trips_ground(agent_text):
     else:
         return None, None
 
-    name = agent.name
-
     hgnc_id = agent.db_refs.get('HGNC')
     fplx_id = agent.db_refs.get('FPLX')
     up_id = agent.db_refs.get('UP')
