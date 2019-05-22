@@ -66,8 +66,8 @@ def _trips_ground(agent_text):
     else:
         grounding = None
 
-    if grounding is not None:
-        name = agent.name
+    # only set name if grounding exists
+    name = agent.name if grounding is not None else None
 
     return name, grounding
 
