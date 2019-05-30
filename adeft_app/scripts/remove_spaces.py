@@ -5,8 +5,8 @@ import json
 from adeft import available_shortforms
 from adeft.modeling.classify import load_model
 
-from deft_app.locations import DATA_PATH
-from deft_app.scripts.model_to_s3 import model_to_s3
+from adeft_app.locations import DATA_PATH
+from adeft_app.scripts.model_to_s3 import model_to_s3
 
 
 def strip_dictionary(d):

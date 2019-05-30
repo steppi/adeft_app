@@ -4,8 +4,8 @@ import argparse
 
 from adeft.discover import DeftMiner
 
-from deft_app.locations import DATA_PATH
-from deft_app.filenames import escape_filename
+from adeft_app.locations import DATA_PATH
+from adeft_app.filenames import escape_filename
 
 
 if __name__ == '__main__':

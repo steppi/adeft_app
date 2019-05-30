@@ -11,9 +11,9 @@ from adeft.recognize import DeftRecognizer
 from adeft.modeling.classify import DeftClassifier
 from adeft.modeling.corpora import DeftCorpusBuilder
 
-from deft_app.locations import DATA_PATH
-from deft_app.filenames import escape_filename
-from deft_app.scripts.consistency import check_grounding_dict
+from adeft_app.locations import DATA_PATH
+from adeft_app.filenames import escape_filename
+from adeft_app.scripts.consistency import check_grounding_dict
 
 
 def train(shortforms, additional=None, n_jobs=1):
@@ -62,7 +62,7 @@ def train(shortforms, additional=None, n_jobs=1):
         ref_dict = json.load(f)
 
     # get statistics for matches to standard patterns
-    stats = deft_stats(grounding_dict, names, text_dict, ref_dict)
+    stats = adeft_stats(grounding_dict, names, text_dict, ref_dict)
 
     # build corpus for training models
     refs, texts = zip(*text_dict.items())
@@ -172,8 +172,8 @@ def train(shortforms, additional=None, n_jobs=1):
     return deft_cl
 
 
-def deft_stats(grounding_dict, names_dict, text_dict, ref_dict):
-    """Output deft pattern matching stats as dict that can jsonified"""
+def adeft_stats(grounding_dict, names_dict, text_dict, ref_dict):
+    """Output adeft pattern matching stats as dict that can jsonified"""
     # need to run each recognizer on every text
     recognizers = [DeftRecognizer(shortform, grounding_map)
                    for shortform, grounding_map in grounding_dict.items()]
