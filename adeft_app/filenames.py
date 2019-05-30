@@ -1,6 +1,6 @@
 """These functions are used to escape and unescape lower case characters
 filenames to make the deft_app compatible with case insensitive file systems.
-The Deft app design involves using filenames as keys in an implicit database,
+The Adeft app design involves using filenames as keys in an implicit database,
 which is broken in a case insensitive file system.
 """
 
