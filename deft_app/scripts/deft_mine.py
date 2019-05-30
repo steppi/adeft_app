@@ -2,14 +2,14 @@ import os
 import json
 import argparse
 
-from deft.discover import DeftMiner
+from adeft.discover import DeftMiner
 
 from deft_app.locations import DATA_PATH
 from deft_app.filenames import escape_filename
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Use deft to get longforms'
+    parser = argparse.ArgumentParser(description='Use adeft to find longforms'
                                      ' associated with shortform')
     parser.add_argument('vars', nargs='*')
     args = parser.parse_args()

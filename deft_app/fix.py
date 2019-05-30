@@ -6,7 +6,7 @@ from collections import defaultdict
 
 from flask import Blueprint, request, render_template, session
 
-from deft.modeling.classify import load_model
+from adeft.modeling.classify import load_model
 
 from .locations import DATA_PATH
 from .filenames import escape_filename

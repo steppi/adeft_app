@@ -1,10 +1,9 @@
 import os
-import sys
 import json
 
 
-from deft import available_shortforms
-from deft.modeling.classify import load_model
+from adeft import available_shortforms
+from adeft.modeling.classify import load_model
 
 from deft_app.locations import DATA_PATH
 from deft_app.scripts.model_to_s3 import model_to_s3
