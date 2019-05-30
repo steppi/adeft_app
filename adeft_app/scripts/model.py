@@ -11,9 +11,9 @@ from adeft.recognize import DeftRecognizer
 from adeft.modeling.classify import DeftClassifier
 from adeft.modeling.corpora import DeftCorpusBuilder
 
-from deft_app.locations import DATA_PATH
-from deft_app.filenames import escape_filename
-from deft_app.scripts.consistency import check_grounding_dict
+from adeft_app.locations import DATA_PATH
+from adeft_app.filenames import escape_filename
+from adeft_app.scripts.consistency import check_grounding_dict
 
 
 def train(shortforms, additional=None, n_jobs=1):

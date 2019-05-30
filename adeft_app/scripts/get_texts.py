@@ -5,8 +5,8 @@ import argparse
 from indra.literature.adeft_tools import universal_extract_text
 from indra_db.util.content_scripts import get_text_content_from_stmt_ids
 
-from deft_app.locations import DATA_PATH
-from deft_app.filenames import escape_filename
+from adeft_app.locations import DATA_PATH
+from adeft_app.filenames import escape_filename
 
 
 if __name__ == '__main__':
