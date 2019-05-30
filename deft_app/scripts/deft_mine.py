@@ -2,7 +2,7 @@ import os
 import json
 import argparse
 
-from deft.discover import DeftMiner
+from adeft.discover import DeftMiner
 
 from deft_app.locations import DATA_PATH
 from deft_app.filenames import escape_filename

@@ -7,9 +7,9 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_predict
 
 
-from deft.recognize import DeftRecognizer
-from deft.modeling.classify import DeftClassifier
-from deft.modeling.corpora import DeftCorpusBuilder
+from adeft.recognize import DeftRecognizer
+from adeft.modeling.classify import DeftClassifier
+from adeft.modeling.corpora import DeftCorpusBuilder
 
 from deft_app.locations import DATA_PATH
 from deft_app.filenames import escape_filename

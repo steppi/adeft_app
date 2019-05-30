@@ -2,7 +2,7 @@ import os
 import json
 import argparse
 
-from indra.literature.deft_tools import universal_extract_text
+from indra.literature.adeft_tools import universal_extract_text
 from indra_db.util.content_scripts import get_text_content_from_stmt_ids
 
 from deft_app.locations import DATA_PATH

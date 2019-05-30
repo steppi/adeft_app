@@ -4,7 +4,7 @@ import boto3
 import argparse
 import tempfile
 
-from deft.download import get_s3_models
+from adeft.download import get_s3_models
 
 from deft_app.locations import DATA_PATH, S3_BUCKET
 from deft_app.filenames import escape_filename
