@@ -28,7 +28,7 @@ if __name__ == '__main__':
         ref_dict, text_dict = get_text_content_from_stmt_ids(all_stmts)
     text_dict = {text_ref: universal_extract_text(article,
                                                   contains=shortforms)
-                 for text_ref, article in text_dict.items()}
+                 for text_ref, article in text_dict.items() if article}
     agg_name = ':'.join(cased_shortforms)
     dir_path = os.path.join(DATA_PATH, 'texts', agg_name)
     if not os.path.exists(dir_path):
