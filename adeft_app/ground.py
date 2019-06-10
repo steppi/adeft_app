@@ -1,11 +1,10 @@
 import os
 import json
 import logging
+import requests
 
 from flask import Blueprint, request, render_template, session
 
-
-from .trips import trips_ground
 from .locations import DATA_PATH
 from .filenames import escape_filename
 
@@ -120,6 +119,20 @@ def generate_grounding_map():
 
 
 def _init_with_trips(shortform, cutoff):
+    try:
+        # Check if trips processor is available
+        from .trips import trips_ground
+        from indra.trips import base_url
+        # Check that trips is available
+        res = requests.get(base_url + 'drum_dev')
+        if res.status_code != 200:
+            res.raise_for_status()
+    except ModuleNotFoundError or requests.excepttions.HTTPError:
+        # produce no groundings if trips is unavailable
+        def trips_ground(agent_text, cached=True):
+            return None, None
+        logger.info('Grounding with trips is not available.')
+
     longforms, scores = _load(shortform, cutoff)
     trips_groundings = [trips_ground(longform, cached=True)
                         for longform in longforms]
