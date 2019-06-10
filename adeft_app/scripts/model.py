@@ -7,9 +7,9 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_predict
 
 
-from adeft.recognize import DeftRecognizer
-from adeft.modeling.classify import DeftClassifier
-from adeft.modeling.corpora import DeftCorpusBuilder
+from adeft.recognize import AdeftRecognizer
+from adeft.modeling.classify import AdeftClassifier
+from adeft.modeling.label import AdeftLabeler
 
 from adeft_app.locations import DATA_PATH
 from adeft_app.filenames import escape_filename
@@ -67,8 +67,8 @@ def train(shortforms, additional=None, n_jobs=1):
     # build corpus for training models
     refs, texts = zip(*text_dict.items())
     texts = [text for text in texts if text is not None]
-    deft_cb = DeftCorpusBuilder(grounding_dict)
-    corpus = deft_cb.build_from_texts(texts)
+    labeler = AdeftLabeler(grounding_dict)
+    corpus = labeler.build_from_texts(texts)
 
     # gather additional texts
     for grounding, name, agent_text in additional:
@@ -84,7 +84,7 @@ def train(shortforms, additional=None, n_jobs=1):
     pos_labels = sorted(set(pos_labels))
 
     train, labels = zip(*corpus)
-    deft_cl = DeftClassifier(shortforms, pos_labels)
+    deft_cl = AdeftClassifier(shortforms, pos_labels)
     params = {'C': [100.0], 'max_features': [10000],
               'ngram_range': [(1, 2)]}
     deft_cl.cv(train, labels, params, n_jobs=n_jobs, cv=5)
@@ -139,7 +139,7 @@ def train(shortforms, additional=None, n_jobs=1):
                                                bottom['importance']))
 
     unlabeled = []
-    recognizers = [DeftRecognizer(shortform, grounding_map)
+    recognizers = [AdeftRecognizer(shortform, grounding_map)
                    for shortform, grounding_Map in grounding_dict.items()]
     for text in texts:
         for rec in recognizers:
@@ -175,7 +175,7 @@ def train(shortforms, additional=None, n_jobs=1):
 def adeft_stats(grounding_dict, names_dict, text_dict, ref_dict):
     """Output adeft pattern matching stats as dict that can jsonified"""
     # need to run each recognizer on every text
-    recognizers = [DeftRecognizer(shortform, grounding_map)
+    recognizers = [AdeftRecognizer(shortform, grounding_map)
                    for shortform, grounding_map in grounding_dict.items()]
 
     # given dict mapping stmt ids to text_ref ids, get dict mapping
